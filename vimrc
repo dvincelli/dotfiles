@@ -140,7 +140,6 @@ iab susbcribe subscribe
 set rtp+=~/.vim/vundle.git
 call vundle#rc()
 
-Bundle "Align.vim"
 Bundle "CSApprox"
 Bundle "git-commit"
 Bundle "inkpoT"
@@ -149,7 +148,10 @@ Bundle "mako.vim"
 Bundle "molly.vim"
 Bundle "pep8"
 Bundle "pyflakes.vim"
-Bundle "SQLUtilities"
+Bundle 'python.vim--Vasiliev'
+
+"Bundle "Align.vim"
+"Bundle "SQLUtilities"
 
 
 if (&t_Co >= 256)	" if we have colors
