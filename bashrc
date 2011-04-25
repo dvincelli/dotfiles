@@ -31,22 +31,18 @@ export GIT_EDITOR="$EDITOR -f"
 [ -x "/Applications/MacVim.app/Contents/MacOS/Vim" ] && alias vim="/Applications/MacVim.app/Contents/MacOS/Vim -f"
 
 # PAGER
-
-export PAGER=$HOME/bin/vimpager
-alias less=vimpager
-alias zless=vimpager
-
-# virtualenvwrapper makes working with virtualenvs easier
-export WORKON_HOME=$HOME/envs
-[ -r  /usr/local/bin/virtualenvwrapper.sh ] && source /usr/local/bin/virtualenvwrapper.sh
-
+export PAGER=less
 # make less pass through ANSI color codes so you can see colors in the pager
 export LESS="-R"
 # if you pipe through $PAGER and see color escape codes try to pipe through stripcolor first
 alias stripcolor='sed "s/\[[0-9;]*m//g"'
 
+# virtualenvwrapper makes working with virtualenvs easier
+export WORKON_HOME=$HOME/envs
+[ -r  /usr/local/bin/virtualenvwrapper.sh ] && source /usr/local/bin/virtualenvwrapper.sh
+
 # ~/bin/ssh has logic to change my terminal's background color
-[ -e $HOME/bin/ssh ] && alias ssh=$HOME/bin/ssh
+[ -e $HOME/bin/colorssh ] && alias ssh=$HOME/bin/colorssh
 
 export GIT_SSH=/usr/bin/ssh
 
