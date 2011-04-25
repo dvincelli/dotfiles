@@ -140,9 +140,8 @@ iab susbcribe subscribe
 set rtp+=~/.vim/vundle.git
 call vundle#rc()
 
-Bundle "CSApprox"
 Bundle "git-commit"
-Bundle "inkpoT"
+Bundle "inkpot"
 Bundle "Jinja"
 Bundle "mako.vim"
 Bundle "molly.vim"
@@ -150,7 +149,10 @@ Bundle "pep8"
 Bundle "pyflakes.vim"
 Bundle 'python.vim--Vasiliev'
 
-"Bundle "Align.vim"
+
+"Bundle "CSApprox"		" requires gui!
+
+"Bundle "Align.vim"		" messes with my align
 "Bundle "SQLUtilities"
 
 
