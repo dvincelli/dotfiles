@@ -1,0 +1,28 @@
+[color]
+	status = auto
+	branch = auto
+	interactive = auto
+	diff = auto
+
+[alias]
+	co = checkout
+	st = status
+	ci = commit
+	br = branch
+	df = diff
+	lg = log -p
+	lol = log --graph --decorate --pretty=oneline --abbrev-commit
+	lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+	ls = ls-files
+
+[core]
+	excludesfile = ~/.gitignore
+
+[git-tmbundle]
+	gitx-path = gitx
+
+[mergetool "diffmerge"]
+	cmd = diffmerge --merge --result=$MERGED $LOCAL $BASE $REMOTE
+	trustExitCode = false
+[merge]
+	tool = diffmerge

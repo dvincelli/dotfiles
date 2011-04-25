@@ -1,0 +1,13 @@
+*.pyc
+*.egg
+.*
+build
+dist
+TAGS
+PYSMELLTAGS
+development.ini
+test.ini
+paster.pid
+*.egg-info
+inc/config/environment.php
+migrations/nomad.cfg

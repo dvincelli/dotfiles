@@ -1,0 +1,7 @@
+--type-add=python=.mako
+--type-add=php=.tpl,.twig
+--ignore-dir=build
+--ignore-dir=dist
+--ignore-dir=data
+--ignore-dir=*.egg-info
+--ignore-dir=*.egg

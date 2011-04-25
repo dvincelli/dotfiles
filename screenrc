@@ -1,0 +1,144 @@
+# ~/.screenrc
+# set a big scrolling buffer
+#
+# Use Ctrl-Q as the command character
+escape ^Qq
+
+#deflogin on
+autodetach on
+startup_message off
+defscrollback 20000
+
+#       d      dim
+#       u      underline
+#       b      bold
+#       r      reverse
+#       s      standout
+#       B      blinking
+#
+#       Colors  are  coded  either as a hexadecimal number or two letters specifying the desired background and foreground color (in that order).
+#       The following colors are known:
+#
+#       k      black
+#       r      red
+#       g      green
+#       y      yellow
+#       b      blue
+#       m      magenta
+#       c      cyan
+#       w      white
+#       d      default color
+#       .      leave color unchanged
+# Set the caption on the bottom line
+caption always "%{= Kw}%-w%{= BW}%n %t%{-}%+w %-= @%H - %LD %d %LM - %c"
+
+###############
+# 256 colours #
+###############
+#
+#.. __: http://frexx.de/xterm-256-notes/
+#
+
+# terminfo and termcap for nice 256 color terminal
+# allow bold colors - necessary for some reason
+
+#attrcolor b ".I"
+# tell screen how to set colors. AB=background, AF=foreground
+#termcapinfo xterm|xterm-256color 'AB=\E[48;5;%dm:AF=\E[38;5;%dm'
+#termcapinfo xterm|xterm-256color 'ti@:te@'
+#termcapinfo xterm* 'hs:ts=\E]2;:fs=07:ds=\E]2;screen07'
+#term xterm-256color
+#term rxvt-unicode
+term xterm
+#terminfo ':G0:'
+# erase background with current bg color
+defbce "on"
+
+# make + and - resize the window
+bind + resize +3
+bind - resize -3
+
+# auto name tabs
+shelltitle ""
+
+# stop leaving vim in the scrollback
+altscreen on
+
+
+# use F8 to turn the status bar off at the bottom of the screen
+bindkey -k k8 hardstatus alwayslastline
+# use F9 to turn the status bar on the bottom back on
+bindkey -k k9 hardstatus alwaysignore
+# the next 2 lines are set up to use F1 and F2 to move one screen forward or backward (respectively) through your screen session.
+hardstatus off
+bindkey -k k1 prev
+bindkey -k k2 next
+bindkey -k k3 windowlist
+
+bindkey -k k5 focus left
+bindkey -k k6 focus down
+bindkey -k k7 focus up
+bindkey -k k8 focus right
+
+# disable Ctrl-S/Ctrl-Q "flow control"
+defflow off
+
+# emacs keybindings for navigation in copy mode
+markkeys ^B=Y:^F=V:h=^B:l=^F:0=0:$=$:^A=0:^E=$
+
+#Home	kh	stuff \033[1~
+#
+#End	kH	stuff \033[4~
+#
+#Insert	kI	stuff \033[2~
+#
+#Delete	kD	stuff \033[3~
+#
+#Page up	kP	stuff \033[5~
+#
+#Page down	kN	stuff \033[6~
+
+# C-space sets mark. markkeys does it in screen 4.0 and higher, but 3.9x
+# needs the bindkey command. (note the ^@ escape sequence for C-space.)
+#markkeys ' '=^@
+# bindkey -m ^@ stuff ' '
+
+# page up and page down
+bindkey -m -k kP stuff Y
+bindkey -m -k kN stuff V
+
+# HOME and END
+bindkey -m -k kh stuff 0
+bindkey -m -k kH stuff $
+bindkey -m ^[[1~ stuff 0
+bindkey -m ^[[4~ stuff $
+
+# shortcuts:
+bind V screen -t 'vim' 0 vim
+
+# failed attempt to make C-space work in i-search too
+# bindkey -m ^@ eval "stuff \033" "stuff ^@" 
+
+# special hack for C-e, since it should go *past*
+# the last char. -m means this is for copy mode only.
+#bindkey -m ^e stuff "$^f"
+
+# C-g and other keys just quit copy mode. Esc does nothing.
+#markkeys \033=\015=^G=^D=h=j=k=l=H=M=L=G=g=y=c=v=a=x=b=e=B=E=w
+#markkeys @=\033
+
+# control arrows move by words. (set B, e, and w to F keys so that i can
+# use them to move by words, but they themselves still quit copy mode.)
+markkeys B=[:E=]:b={:e=}:w=>
+bindkey -m ^[[D stuff {  #"[[}"
+bindkey -m ^[[C stuff ]  #"}]^f"
+
+screen 0
+select 0
+
+#exec $HOME/bin/screen-ssh-agent
+#exec true
+#source $HOME/.ssh/screen_agent
+
+multiuser on 
+aclchg s2m +rwx "#?" 
