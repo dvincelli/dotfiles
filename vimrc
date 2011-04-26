@@ -55,7 +55,6 @@ set suffixes+=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.
 
 set path=~/projects/**
 
-let mapleader=','
 
 cwindow 30		" size of error window
 
@@ -102,8 +101,9 @@ if has("autocmd")
 	autocmd FileType make set noexpandtab shiftwidth=8
 
 	" for Python
-	autocmd FileType python setlocal tabstop=4 shiftwidth=4 expandtab shiftround softtabstop=4 autoindent foldenable smartindent cinwords=if,elif,else,for,while,with,try,except,finally,def,class
+	autocmd FileType python setlocal tabstop=4 shiftwidth=4 expandtab shiftround softtabstop=4 noautoindent foldenable smartindent cinwords=if,elif,else,for,while,with,try,except,finally,def,class
 	"autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+ 	autocmd BufNewFile,BufRead *.py compiler nose
 	"autocmd FileType python setlocal omnifunc=pysmell#Complete
 
 	au FileType svn setlocal spell tw=76
@@ -126,10 +126,6 @@ nmap <leader>l :set list!<CR>
 set listchars=tab:▸\ ,eol:¬,trail:·
 set list
 
-" Command-T
-nmap <leader>t :Molly<CR>
-map OB <down>
-map OA <up>
 
 " common typos
 iab susbcriber subscriber
@@ -140,6 +136,9 @@ iab susbcribe subscribe
 set rtp+=~/.vim/vundle.git
 call vundle#rc()
 
+"Bundle "Align.vim"	" needed for SQLUtilities
+"Bundle "SQLUtilities"	
+Bundle "CSApprox"
 Bundle "git-commit"
 Bundle "inkpot"
 Bundle "Jinja"
@@ -148,13 +147,17 @@ Bundle "molly.vim"
 Bundle "pep8"
 Bundle "pyflakes.vim"
 Bundle 'python.vim--Vasiliev'
+Bundle "git://github.com/reinh/vim-makegreen.git"
+Bundle "git://github.com/olethanh/Vim-nosecompiler.git"
 
 
-"Bundle "CSApprox"		" requires gui!
+" Command-T
+nmap <leader>t :Molly<CR>
+map OB <down>
+map OA <up>
 
-"Bundle "Align.vim"		" messes with my align
-"Bundle "SQLUtilities"
-
+" unittests
+map <Leader>m :call MakeGreen()<cr>
 
 if (&t_Co >= 256)	" if we have colors
 	if exists("syntax_on")
@@ -162,3 +165,6 @@ if (&t_Co >= 256)	" if we have colors
 	endif
 	colorscheme inkpot
 endif
+
+let g:pyflakes_use_quickfix = 0 " no pyflakes in command window
+let mapleader=','
