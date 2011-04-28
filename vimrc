@@ -1,7 +1,6 @@
 set nocompatible	" we don't need vi compatibility, give us all of vim
 set nomodeline		" do not parse embedded modelines (see: CVE-2007-2438)
 
-
 set lazyredraw		" don't redraw when running macros
 set ttyfast		" fast local tty
 
@@ -19,6 +18,8 @@ set backspace=indent,eol,start " backspace over autoident, EOL, and start of ins
 set number		" line numbers
 
 set hlsearch		" highlight search matches
+" <esc> also turns off highlighted matches
+"nnoremap <esc> <esc>:nohl<cr>
 set incsearch		" incremental search (jump to partial match)
 
 set smartcase		" if I put case variation in my search, it's cause I care
@@ -42,7 +43,8 @@ set mouse=a		" enable mouse in all modes
 set wildmenu		" enable wildmenu
 set wildmode=list:longest,full	" match order
 set wildchar=<tab>	" complete on tab
-set wildignore+=.git,*.pyc,*.egg,data/*,build/*,dist/*,*.egg-info/*,data/* " these aren't good
+" ignore all of these
+set wildignore+=.git,*.pyc,*.egg,./data/**,./build/**,./dist/**,./*.egg-info/**,./*.egg/,data/*,build/*,dist/*,*.egg-info,*.egg/**
 
 " change default auto-complete menu colors
 highlight Pmenu ctermfg=1 ctermbg=4 guibg=grey30
@@ -54,7 +56,6 @@ set suffixes+=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.
 "set foldmethod=marker
 
 set path=~/projects/**
-
 
 cwindow 30		" size of error window
 
@@ -119,6 +120,8 @@ match WhitespaceEOL /\s\+$/
 highlight RedundantSpaces ctermbg=red guibg=red
 match RedundantSpaces /\s\+$\| \+\ze\t/
 
+let mapleader=','
+
 " Shortcut to rapidly toggle `set list`
 nmap <leader>l :set list!<CR>
 
@@ -138,26 +141,28 @@ call vundle#rc()
 
 "Bundle "Align.vim"	" needed for SQLUtilities
 "Bundle "SQLUtilities"	
-Bundle "CSApprox"
+"Bundle "CSApprox"	" needs gui
 Bundle "git-commit"
 Bundle "inkpot"
 Bundle "Jinja"
 Bundle "mako.vim"
-Bundle "molly.vim"
+Bundle "git@github.com:ocim/molly.vim.git"
 Bundle "pep8"
-Bundle "pyflakes.vim"
+"Bundle "pyflakes.vim" " needs python2.6 compiled in :(
 Bundle 'python.vim--Vasiliev'
 Bundle "git://github.com/reinh/vim-makegreen.git"
 Bundle "git://github.com/olethanh/Vim-nosecompiler.git"
 
 
 " Command-T
-nmap <leader>t :Molly<CR>
+nmap <leader>t :Molly<cr>
 map OB <down>
 map OA <up>
 
 " unittests
-map <Leader>m :call MakeGreen()<cr>
+nmap <leader>m :call MakeGreen()<cr>
+
+nmap <leader>h :nohl<cr>
 
 if (&t_Co >= 256)	" if we have colors
 	if exists("syntax_on")
@@ -167,4 +172,3 @@ if (&t_Co >= 256)	" if we have colors
 endif
 
 let g:pyflakes_use_quickfix = 0 " no pyflakes in command window
-let mapleader=','
