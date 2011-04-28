@@ -11,6 +11,7 @@ test -t 0 && stty -iexten # if stdin is open disable xon/xoff flow control (^Q, 
 
 PATH=$HOME/bin:$PATH
 
+[ -d $HOME/.homebrew/bin ] && PATH=$PATH:$HOME/.homebrew/bin
 [ -d /usr/local/bin ] && PATH=$PATH:/usr/local/bin
 [ -d /usr/local/git/bin ] && PATH=$PATH:/usr/local/git/bin
 
@@ -19,16 +20,12 @@ export PATH
 # EDITOR
 
 EDITOR=vim
-[ -x $HOME/bin/mvim ] && EDITOR="$HOME/bin/mvim"
 export EDITOR
-
 export GIT_EDITOR="$EDITOR -f"
 
 [ -x $HOME/bin/svneditor ] && export SVN_EDITOR=$HOME/bin/svneditor
 [ -x $HOME/bin/giteditor ] && export GIT_EDITOR=$HOME/bin/giteditor
 [ -x $HOME/bin/hgeditor ] && export HG_EDITOR=$HOME/bin/hgeditor
-
-[ -x "/Applications/MacVim.app/Contents/MacOS/Vim" ] && alias vim="/Applications/MacVim.app/Contents/MacOS/Vim -f"
 
 # PAGER
 export PAGER=less
