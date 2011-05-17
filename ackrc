@@ -1,4 +1,4 @@
---type-add=python=.mako
+--type-add=python=.mako,.migration
 --type-add=php=.tpl,.twig
 --ignore-dir=build
 --ignore-dir=dist
