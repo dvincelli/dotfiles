@@ -1,6 +1,7 @@
 set nocompatible	" we don't need vi compatibility, give us all of vim
 set nomodeline		" do not parse embedded modelines (see: CVE-2007-2438)
 
+
 set lazyredraw		" don't redraw when running macros
 set ttyfast		" fast local tty
 
@@ -18,8 +19,10 @@ set backspace=indent,eol,start " backspace over autoident, EOL, and start of ins
 set number		" line numbers
 
 set hlsearch		" highlight search matches
+
 " <esc> also turns off highlighted matches
 "nnoremap <esc> <esc>:nohl<cr>
+
 set incsearch		" incremental search (jump to partial match)
 
 set smartcase		" if I put case variation in my search, it's cause I care
@@ -30,11 +33,13 @@ set sidescrolloff=5	" keep at least this many columns left/right of cursor
 
 set grepprg=ack		" ack is smarter
 
+cmap ack grep
+
 set showmode		" vim lets us know which mode we're in
 set showcmd		" show partial command in last line of screen
 set shortmess+=rnixnm	" shorter messages
 
-set statusline=%F%m%r%h%w\ [%Y:%{&ff}]\ [A=\%03.3b]\ [0x=\%02.2B]\ [%l/%L,%v][%p%%]\ %{$PYTHONPROJECT}
+set statusline=%F%m%r%h%w\ [%Y:%{&ff}]\ [A=\%03.3b]\ [0x=\%02.2B]\ [%l/%L,%v][%p%%]\ %{fugitive#statusline()}
 set laststatus=2 " make the last line where the status is two lines deep so you can see status always
 
 set ttymouse=xterm2	" enable mouse in terminal
@@ -43,19 +48,19 @@ set mouse=a		" enable mouse in all modes
 set wildmenu		" enable wildmenu
 set wildmode=list:longest,full	" match order
 set wildchar=<tab>	" complete on tab
-" ignore all of these
 set wildignore+=.git,*.pyc,*.egg,./data/**,./build/**,./dist/**,./*.egg-info/**,./*.egg/,data/*,build/*,dist/*,*.egg-info,*.egg/**
 
 " change default auto-complete menu colors
 highlight Pmenu ctermfg=1 ctermbg=4 guibg=grey30
 
 " do not complete on these
-set suffixes+=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.cmi,.cmo,.swo,.pyc,TAGS,PYSMELLTAGS
+set suffixes+=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.cmi,.cmo,.swo,.pyc,TAGS
 
 "set nofoldenable
 "set foldmethod=marker
 
 set path=~/projects/**
+
 
 cwindow 30		" size of error window
 
@@ -125,10 +130,13 @@ let mapleader=','
 " Shortcut to rapidly toggle `set list`
 nmap <leader>l :set list!<CR>
 
+map <leader>[ :tabprev<CR>
+map <leader>] :tabnext<CR>
+map <leader>T :tabnew<CR>
+
 " Use the same symbols as TextMate for tabstops and EOLs
 set listchars=tab:▸\ ,eol:¬,trail:·
 set list
-
 
 " common typos
 iab susbcriber subscriber
@@ -141,28 +149,34 @@ call vundle#rc()
 
 "Bundle "Align.vim"	" needed for SQLUtilities
 "Bundle "SQLUtilities"	
-"Bundle "CSApprox"	" needs gui
+"Bundle "CSApprox"
 Bundle "git-commit"
 Bundle "inkpot"
 Bundle "Jinja"
 Bundle "mako.vim"
-Bundle "git@github.com:ocim/molly.vim.git"
+Bundle "molly.vim"
 Bundle "pep8"
 "Bundle "pyflakes.vim" " needs python2.6 compiled in :(
 Bundle 'python.vim--Vasiliev'
 Bundle "git://github.com/reinh/vim-makegreen.git"
 Bundle "git://github.com/olethanh/Vim-nosecompiler.git"
+Bundle "git://github.com/tpope/vim-fugitive.git"
 
 
+let mapleader=','
 " Command-T
-nmap <leader>t :Molly<cr>
+nmap <leader>t :tabnew<cr>:Molly<cr>
 map OB <down>
 map OA <up>
 
 " unittests
-nmap <leader>m :call MakeGreen()<cr>
+nmap <Leader>m :call MakeGreen()<cr>
 
-nmap <leader>h :nohl<cr>
+map <leader>[ :tabprev<CR>
+map <leader>] :tabnext<CR>
+map <leader>T :tabnew<CR>
+
+nmap <leader>m :call MakeGreen()<cr>
 
 if (&t_Co >= 256)	" if we have colors
 	if exists("syntax_on")
