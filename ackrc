@@ -5,3 +5,5 @@
 --ignore-dir=data
 --ignore-dir=*.egg-info
 --ignore-dir=*.egg
+--ignore-dir=PasteScript-1.7.3-py2.6.egg
+--ignore-dir=Paste-1.7.3.1-py2.6.egg
