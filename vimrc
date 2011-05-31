@@ -29,7 +29,7 @@ set scrolloff=8		" keep at least this many lines above/below cursor
 set sidescrolloff=5	" keep at least this many columns left/right of cursor
 
 set grepprg=ack		" ack is smarter
-cmap ack grep
+cnoremap ack<space> grep<space>
 
 set showmode		" vim lets us know which mode we're in
 set showcmd		" show partial command in last line of screen
@@ -156,7 +156,12 @@ Bundle 'python.vim--Vasiliev'
 Bundle "git://github.com/reinh/vim-makegreen.git"
 Bundle "git://github.com/olethanh/Vim-nosecompiler.git"
 Bundle "git://github.com/tpope/vim-fugitive.git"
+Bundle "matchit.zip"
+Bundle "Gundo"
 
+function SqlTidy() range
+	execute (a:firstline) . "," . a:lastline . "!sqltidy"
+endfunction
 
 let mapleader=','
 " Command-T
@@ -164,23 +169,32 @@ nmap <leader>t :tabnew<cr>:Molly<cr>
 map OB <down>
 map OA <up>
 
+" tab navigation
 nmap <leader>[ :tabprev<CR>
 nmap <leader>] :tabnext<CR>
 nmap <leader>T :tabnew<CR>
 
+" buffer navigation
 nmap <leader>h :prev<cr>
 nmap <leader>l :next<cr>
 nmap <leader>b :buffers<cr>
 
-" unittests
-nmap <leader>m :call MakeGreen()<cr>
-
+" clist navigation
 nmap <leader>c :cwindow<cr>
 nmap <leader>k :cprev<cr>
 nmap <leader>j :cnext<cr>
 
-nmap <leader>G :grep! <cword><cr>:cwindow<cr>
-nmap <leader>g :grepadd! <cword><cr>:cwindow<cr>
+" unittests
+nmap <leader>m :call MakeGreen()<cr>
+
+" grep shortcuts
+nmap <leader>gr :grep! <cword><cr>:cwindow<cr>
+nmap <leader>gra :grepadd! <cword><cr>:cwindow<cr>
+
+" git shortcuts
+nmap <leader>gd :Gdiff<cr>
+
+nmap <leader>u :call GundoToggle()<cr>
 
 if (&t_Co >= 256)	" if we have colors
 	if exists("syntax_on")
