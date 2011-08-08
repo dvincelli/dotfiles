@@ -6,8 +6,12 @@ install-bash:	install-vcprompt
 	cp bashrc.colors ~/.bashrc.colors
 
 install-git:
-	cp gitconfig ~/.gitconfig
-	cp gitignore ~/.gitignore
+	NAME=$(git config --global user.name) \
+	EMAIL=$(git config --global user.email) \
+	[ -e ~/.gitconfig ] && cp ~/.gitconfig ~/.gitconfig.bak && \
+	cp gitconfig ~/.gitconfig && \
+	git config --global user.name="${NAME}" && \
+	git config --global user.email="${EMAIL}"
 
 install-screen:
 	cp screenrc ~/.screenrc

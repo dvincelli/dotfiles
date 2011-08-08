@@ -9,9 +9,10 @@ set noeb		" no error bell *only slightly more annoying than visual bells*
 
 set history=100		" keep some history
 
-set clipboard=unnamed	" Uses OS clipboard (shares clipboard accross vim instances)
+"set clipboard=unnamed	" Uses OS clipboard (shares clipboard accross vim instances)
+set clipboard=*	" Uses OS clipboard (shares clipboard accross vim instances)
 
-set noeol		" Don't automatically insert EOL at EOF
+"set noeol		" Don't automatically insert EOL at EOF
 
 set backspace=indent,eol,start " backspace over autoident, EOL, and start of insert
 
@@ -29,7 +30,7 @@ set scrolloff=8		" keep at least this many lines above/below cursor
 set sidescrolloff=5	" keep at least this many columns left/right of cursor
 
 set grepprg=ack		" ack is smarter
-cnoremap ack<space> grep<space>
+cmap ack grep
 
 set showmode		" vim lets us know which mode we're in
 set showcmd		" show partial command in last line of screen
@@ -38,7 +39,7 @@ set shortmess+=rnixnm	" shorter messages
 set statusline=%F%m%r%h%w\ [%Y:%{&ff}]\ [A=\%03.3b]\ [0x=\%02.2B]\ [%l/%L,%v][%p%%]\ %{fugitive#statusline()}
 set laststatus=2 " make the last line where the status is two lines deep so you can see status always
 
-set nottybuiltin	" maybe not?`
+"set nottybuiltin	" maybe not?`
 set ttyscroll=5
 
 set title		" setup my title
@@ -156,12 +157,7 @@ Bundle 'python.vim--Vasiliev'
 Bundle "git://github.com/reinh/vim-makegreen.git"
 Bundle "git://github.com/olethanh/Vim-nosecompiler.git"
 Bundle "git://github.com/tpope/vim-fugitive.git"
-Bundle "matchit.zip"
-Bundle "Gundo"
 
-function SqlTidy() range
-	execute (a:firstline) . "," . a:lastline . "!sqltidy"
-endfunction
 
 let mapleader=','
 " Command-T
@@ -169,32 +165,23 @@ nmap <leader>t :tabnew<cr>:Molly<cr>
 map OB <down>
 map OA <up>
 
-" tab navigation
 nmap <leader>[ :tabprev<CR>
 nmap <leader>] :tabnext<CR>
 nmap <leader>T :tabnew<CR>
 
-" buffer navigation
 nmap <leader>h :prev<cr>
 nmap <leader>l :next<cr>
 nmap <leader>b :buffers<cr>
 
-" clist navigation
+" unittests
+nmap <leader>m :call MakeGreen()<cr>
+
 nmap <leader>c :cwindow<cr>
 nmap <leader>k :cprev<cr>
 nmap <leader>j :cnext<cr>
 
-" unittests
-nmap <leader>m :call MakeGreen()<cr>
-
-" grep shortcuts
-nmap <leader>gr :grep! <cword><cr>:cwindow<cr>
-nmap <leader>gra :grepadd! <cword><cr>:cwindow<cr>
-
-" git shortcuts
-nmap <leader>gd :Gdiff<cr>
-
-nmap <leader>u :call GundoToggle()<cr>
+nmap <leader>G :grep! <cword><cr>:cwindow<cr>
+nmap <leader>g :grepadd! <cword><cr>:cwindow<cr>
 
 if (&t_Co >= 256)	" if we have colors
 	if exists("syntax_on")
