@@ -9,8 +9,8 @@ set noeb		" no error bell *only slightly more annoying than visual bells*
 
 set history=100		" keep some history
 
-"set clipboard=unnamed	" Uses OS clipboard (shares clipboard accross vim instances)
-set clipboard=*	" Uses OS clipboard (shares clipboard accross vim instances)
+set clipboard=unnamed	" Uses OS clipboard (shares clipboard accross vim instances)
+"set clipboard=*	" Uses OS clipboard (shares clipboard accross vim instances)
 
 "set noeol		" Don't automatically insert EOL at EOF
 
@@ -30,7 +30,14 @@ set scrolloff=8		" keep at least this many lines above/below cursor
 set sidescrolloff=5	" keep at least this many columns left/right of cursor
 
 set grepprg=ack		" ack is smarter
-cmap ack grep
+function! CommandCabbr(abbreviation, expansion)
+	execute 'cabbr ' . a:abbreviation . ' <c-r>=getcmdpos() == 1 && getcmdtype() == ":" ? "' . a:expansion . '" : "' . a:abbreviation . '"<CR>'
+endfunction
+command! -nargs=+ CommandCabbr call CommandCabbr(<f-args>)
+" Use it on itself to define a simpler abbreviation for itself.
+"
+CommandCabbr ccab CommandCabbr
+CommandCabbr ack grep
 
 set showmode		" vim lets us know which mode we're in
 set showcmd		" show partial command in last line of screen
@@ -72,12 +79,23 @@ syntax on
 filetype plugin indent on
 
 if has("autocmd")
+	" sql
+	au! BufRead,BufNewFile *.sql setfiletype mysql
+	au BufWinEnter *.sql setfiletype mysql
+	au! BufRead,BufNewFile /tmp/sql* setfiletype mysql
+
+	" JavaScript
+	au FileType javascript set si et ts=4 sw=4
+
 	" mako templates
 	au! BufRead,BufNewFile *.mtpl setfiletype htmlmako
 	au BufWinEnter *.mtpl setfiletype htmlmako
 	au! BufRead,BufNewFile *.mako setfiletype htmlmako
 	au BufWinEnter *.mako setfiletype htmlmako
 
+	" jinja templates
+	au! BufRead,BufNewFile *.jinja setfiletype htmljinja
+	au BufWinEnter *.jinja setfiletype htmljinja
 	" twig templates
 	au! BufRead,BufNewFile *.twig setfiletype htmljinja
 	au BufWinEnter *.twig setfiletype htmljinja
@@ -94,7 +112,9 @@ if has("autocmd")
 
 	" for both CSS and HTML, use genuine tab characters for indentation, to make
 	" files a few bytes smaller:
-	autocmd FileType html,css set noexpandtab tabstop=2
+	"autocmd FileType html,css set noexpandtab tabstop=2
+	" seems like we don't follow those practices here
+	autocmd FileType html,css set ts=4 sw=4 et
 
 	" For PHP we use 8 tabstops and real tab characters
 	autocmd FileType php set noexpandtab tabstop=8
@@ -141,8 +161,6 @@ iab susbcribe subscribe
 set rtp+=~/.vim/vundle.git
 call vundle#rc()
 
-"Bundle "Align.vim"	" needed for SQLUtilities
-"Bundle "SQLUtilities"	
 "Bundle "CSApprox"
 Bundle "git-commit"
 Bundle "inkpot"
@@ -157,7 +175,7 @@ Bundle 'python.vim--Vasiliev'
 Bundle "git://github.com/reinh/vim-makegreen.git"
 Bundle "git://github.com/olethanh/Vim-nosecompiler.git"
 Bundle "git://github.com/tpope/vim-fugitive.git"
-
+Bundle "git://github.com/kien/ctrlp.vim.git"
 
 let mapleader=','
 " Command-T
