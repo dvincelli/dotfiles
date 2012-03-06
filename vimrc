@@ -176,6 +176,7 @@ Bundle "git://github.com/reinh/vim-makegreen.git"
 Bundle "git://github.com/olethanh/Vim-nosecompiler.git"
 Bundle "git://github.com/tpope/vim-fugitive.git"
 Bundle "git://github.com/kien/ctrlp.vim.git"
+"Bundle 'dbext.vim'
 
 let mapleader=','
 " Command-T
@@ -209,3 +210,6 @@ if (&t_Co >= 256)	" if we have colors
 endif
 
 let g:pyflakes_use_quickfix = 0 " no pyflakes in command window
+
+nnoremap <leader>ev :vsplit $MYVIMRC<cr>
+nnoremap <leader>sv :source $MYVIMRC<cr>
