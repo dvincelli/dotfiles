@@ -83,6 +83,7 @@ if has("autocmd")
 	au! BufRead,BufNewFile *.sql setfiletype mysql
 	au BufWinEnter *.sql setfiletype mysql
 	au! BufRead,BufNewFile /tmp/sql* setfiletype mysql
+	au FileType mysql set si et ts=4 sw=4
 
 	" JavaScript
 	au FileType javascript set si et ts=4 sw=4
@@ -161,7 +162,6 @@ iab susbcribe subscribe
 set rtp+=~/.vim/vundle.git
 call vundle#rc()
 
-"Bundle "CSApprox"
 Bundle "git-commit"
 Bundle "inkpot"
 Bundle "Jinja"
@@ -176,7 +176,6 @@ Bundle "git://github.com/reinh/vim-makegreen.git"
 Bundle "git://github.com/olethanh/Vim-nosecompiler.git"
 Bundle "git://github.com/tpope/vim-fugitive.git"
 Bundle "git://github.com/kien/ctrlp.vim.git"
-"Bundle 'dbext.vim'
 
 let mapleader=','
 " Command-T
@@ -210,6 +209,3 @@ if (&t_Co >= 256)	" if we have colors
 endif
 
 let g:pyflakes_use_quickfix = 0 " no pyflakes in command window
-
-nnoremap <leader>ev :vsplit $MYVIMRC<cr>
-nnoremap <leader>sv :source $MYVIMRC<cr>
