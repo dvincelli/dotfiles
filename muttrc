@@ -1,0 +1,74 @@
+set realname="David Vincelli"
+set from=
+set use_from=yes
+set edit_headers=yes
+
+set imap_user=
+set imap_pass=
+set record="=Sent"
+set postponed="=Drafts"
+set folder="imap://secure.emailsrvr.com/INBOX"
+set spoolfile="imap://secure.emailsrvr.com/INBOX"
+set mask="."
+# cache imap headers
+set header_cache=~/.hcache
+unset imap_passive
+# Automatically poll subscribed mailboxes for new mail (new in 1.5.11)
+set imap_check_subscribed
+# Reduce polling frequency to a sane level
+set mail_check=60
+# And poll the current mailbox more often (not needed with IDLE in post 1.5.11)
+set timeout=10
+set net_inc=5
+# This will cause Mutt to attach the message rather than quoting it in the body of the message. 
+# Otherwise use "bounce".
+set mime_forward=yes
+set mime_forward_rest=yes
+
+set sort=threads # default sort messages by thread
+set sort_browser=reverse-date # showing mbox list default to newest first
+set sort_aux=last-date-received # showing threads with youngest message last
+
+# notify when new messages appear in these inboxes
+mailboxes "=INBOX"
+mailboxes "=Analytics"
+mailboxes "=wc"
+mailboxes "=staff"
+mailboxes "=test"
+
+# pager
+set pager_index_lines=10
+
+# colorscheme, maybe
+color header cyan black .
+color header yellow black ^From
+color header yellow black ^Subject
+color body yellow black [_a-z\.\$A-Z0-9-]+@[a-zA-Z0-9\./\-]+
+color body yellow black (http|ftp)://[_a-zA-Z0-9\?\=\&\@\%\#\:\,\./~\-]+
+color quoted green black
+color signature cyan black
+color attachment yellow black
+color tree white black
+color indicator black cyan
+color status yellow blue
+color tilde blue black
+color normal white black
+color index green black ~N
+
+# attachments
+auto_view text/x-vcard text/html text/enriched
+
+
+alternative_order text/plain text/html text/enriched
+
+set my_pass=
+set my_user=
+
+set smtp_url=smtps://$my_user:$my_pass@secure.emailsrvr.com
+set ssl_force_tls = yes
+
+# Skip the bothering prompt for recipient and subject when replying and start immediately with writing your message: 
+set fast_reply="yes"
+#
+# Always quote when replying: 
+set include="yes"
