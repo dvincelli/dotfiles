@@ -3,44 +3,52 @@ if [ -z "$PS1" ]; then
        return
 fi
 
-# TTY
-
-test -t 0 && stty -iexten # if stdin is open disable xon/xoff flow control (^Q, ^S)
-
-# PATH
+[ -t 0 ] && stty -iexten # if stdin is open disable xon/xoff flow control (^Q, ^S)
 
 PATH=$HOME/bin:$PATH
 
-[ -d $HOME/.homebrew/bin ] && PATH=$PATH:$HOME/.homebrew/bin
-[ -d /usr/local/bin ] && PATH=$PATH:/usr/local/bin
-[ -d /usr/local/git/bin ] && PATH=$PATH:/usr/local/git/bin
+function path_if() {
+	[ -d $1 ] && PATH=$1:$PATH
+}
+
+function source_if() {
+	[ -r $1 ] && source $1
+}
+function export_if() {
+	[ -x $2 ] && export $1=$2
+}
+
+
+path_if $HOME/.homebrew/bin
+path_if /usr/local/bin
+path_if /usr/local/git/bin
 
 export PATH
-
-# EDITOR
 
 EDITOR=vim
 export EDITOR
 export GIT_EDITOR="$EDITOR -f"
 
-[ -x $HOME/bin/svneditor ] && export SVN_EDITOR=$HOME/bin/svneditor
-[ -x $HOME/bin/giteditor ] && export GIT_EDITOR=$HOME/bin/giteditor
-[ -x $HOME/bin/hgeditor ] && export HG_EDITOR=$HOME/bin/hgeditor
+export_if SVN_EDITOR $HOME/bin/svneditor
+export_if GIT_EDITOR $HOME/bin/giteditor
+export_if HG_EDITOR $HOME/bin/hgeditor
 
-# PAGER
 export PAGER=less
 # make less pass through ANSI color codes so you can see colors in the pager
 export LESS="-R"
 # if you pipe through $PAGER and see color escape codes try to pipe through stripcolor first
 alias stripcolor='sed "s/\[[0-9;]*m//g"'
 
-# virtualenvwrapper makes working with virtualenvs easier
-export WORKON_HOME=$HOME/envs
-[ -r  /usr/local/bin/virtualenvwrapper.sh ] && source /usr/local/bin/virtualenvwrapper.sh
+# virtualenvwrapper was too slow, all I need is workon
+function workon() {
+	[ -d ~/envs/"$1" ] && source ~/envs/"$1"/bin/activate
+	[ -d ~/projects/"$1" ] && cd ~/projects/"$1"
+}
 
-# ~/bin/ssh has logic to change my terminal's background color
+# ~/bin/colorssh has logic to change my terminal's background color
 [ -e $HOME/bin/colorssh ] && alias ssh=$HOME/bin/colorssh
 
+# git gets confused by the colorssh alias
 export GIT_SSH=/usr/bin/ssh
 
 # git aliases
@@ -58,6 +66,8 @@ alias gl="git pull"
 alias gd="git diff"
 alias gco="git checkout"
 
+source_if /usr/local/git/.git-completion.bash
+
 # Show most used commands from bash history
 function usage {
     history | awk '{a[$2]++}END{for(i in a){print a[i] " " i}}' | sort -rn | head
@@ -68,7 +78,9 @@ function title {
     printf '\33]2;%s\007' "$*"
 }
 
-export PS1='\h@\w☃ '
+export PS1='\h@\w$ '
 
-[ -e $HOME/.bashrc.colors ] && source $HOME/.bashrc.colors
-[ -e $HOME/.bashrc.local ] && source $HOME/.bashrc.local
+export PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD/$HOME/~}\007"'
+
+source_if $HOME/.bashrc.colors
+source_if $HOME/.bashrc.local
