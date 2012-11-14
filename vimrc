@@ -179,11 +179,33 @@ Bundle "git://github.com/reinh/vim-makegreen.git"
 Bundle "git://github.com/olethanh/Vim-nosecompiler.git"
 Bundle "git://github.com/tpope/vim-fugitive.git"
 Bundle "git://github.com/kien/ctrlp.vim.git"
+
 " powerline requires a more modern vim than CentOS provides
 "Bundle "git://github.com/Lokaltog/vim-powerline.git"
 
+" turn ANSI Color codes into syntax color
+Bundle "git://github.com/vim-scripts/AnsiEsc.vim.git"
+
+" edit one file with root privleges without running the whole session that way
+Bundle "git://github.com/vim-scripts/sudo.vim.git"
+
 " CTRL-X / to close a tag
 Bundle "git://github.com/tpope/vim-ragtag.git"
+
+" ,w into ProgrammingLanguage prog_lang progLang words
+Bundle "git://github.com/vim-scripts/camelcasemotion.git"
+
+" on the fly syntax checking
+Bundle "git://github.com/scrooloose/syntastic.git"
+
+" indent guides
+Bundle "git://github.com/nathanaelkane/vim-indent-guides.git"
+
+" github markdown
+Bundle "git://github.com/jtratner/vim-flavored-markdown.git"
+
+" gitv - gitk clone, repo viewer
+Bundle "git://github.com/gregsexton/gitv.git"
 
 let mapleader=','
 " Command-T
