@@ -151,15 +151,11 @@ set listchars=tab:_\ ,trail:_
 " Shortcut to rapidly toggle `set list`
 nmap <leader>s :set list!<CR>
 
-
-" common typos
-iab susbcriber subscriber
-iab susbcription subscription
-iab susbcribe subscribe
-
-" bundles
-set rtp+=~/.vim/vundle.git
-call vundle#rc()
+" bundle
+filetype off
+set rtp+=~/.vim/Vundle.vim
+call vundle#begin()
+Plugin 'gmarik/Vundle.vim'
 
 Bundle "git-commit"
 Bundle "inkpot"
@@ -207,11 +203,16 @@ Bundle "git://github.com/jtratner/vim-flavored-markdown.git"
 " gitv - gitk clone, repo viewer
 Bundle "git://github.com/gregsexton/gitv.git"
 
+call vundle#end()            " required
+filetype plugin indent on    " required
+
+
+
 let mapleader=','
 " Command-T
 nmap <leader>t :tabnew<cr>:Molly<cr>
-map OB <down>
-map OA <up>
+map B <down>
+map A <up>
 
 " tab helpers
 nmap <leader>[ :tabprev<CR>
