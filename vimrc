@@ -153,7 +153,7 @@ nmap <leader>s :set list!<CR>
 
 " bundle
 filetype off
-set rtp+=~/.vim/Vundle.vim
+set rtp+=~/.vim/vundle.git
 call vundle#begin()
 Plugin 'gmarik/Vundle.vim'
 
