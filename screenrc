@@ -7,7 +7,7 @@ escape ^Qq
 #deflogin on
 autodetach on
 startup_message off
-defscrollback 20000
+defscrollback 50000
 
 #       d      dim
 #       u      underline
