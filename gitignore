@@ -5,9 +5,7 @@ build
 dist
 TAGS
 PYSMELLTAGS
-development.ini
-test.ini
-paster.pid
+*.pid
+*.log
+*.err
 *.egg-info
-inc/config/environment.php
-migrations/nomad.cfg
