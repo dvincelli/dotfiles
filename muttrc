@@ -7,8 +7,8 @@ set imap_user=
 set imap_pass=
 set record="=Sent"
 set postponed="=Drafts"
-set folder="imap://secure.emailsrvr.com/INBOX"
-set spoolfile="imap://secure.emailsrvr.com/INBOX"
+set folder="imap://secure.dunno.com/INBOX"
+set spoolfile="imap://secure.dunno.com/INBOX"
 set mask="."
 # cache imap headers
 set header_cache=~/.hcache
@@ -31,9 +31,6 @@ set sort_aux=last-date-received # showing threads with youngest message last
 
 # notify when new messages appear in these inboxes
 mailboxes "=INBOX"
-mailboxes "=Analytics"
-mailboxes "=wc"
-mailboxes "=staff"
 mailboxes "=test"
 
 # pager
@@ -64,7 +61,7 @@ alternative_order text/plain text/html text/enriched
 set my_pass=
 set my_user=
 
-set smtp_url=smtps://$my_user:$my_pass@secure.emailsrvr.com
+set smtp_url=smtps://$my_user:$my_pass@secure.dunno.com
 set ssl_force_tls = yes
 
 # Skip the bothering prompt for recipient and subject when replying and start immediately with writing your message: 
