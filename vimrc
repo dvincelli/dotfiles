@@ -211,8 +211,7 @@ filetype plugin indent on    " required
 let mapleader=','
 " Command-T
 nmap <leader>t :tabnew<cr>:Molly<cr>
-map B <down>
-map A <up>
+
 
 " tab helpers
 nmap <leader>[ :tabprev<CR>
