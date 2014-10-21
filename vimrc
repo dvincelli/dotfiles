@@ -203,6 +203,9 @@ Bundle "git://github.com/jtratner/vim-flavored-markdown.git"
 " gitv - gitk clone, repo viewer
 Bundle "git://github.com/gregsexton/gitv.git"
 
+" vdebug - for xdebug
+Bundle 'joonty/vdebug.git'
+
 call vundle#end()            " required
 filetype plugin indent on    " required
 
