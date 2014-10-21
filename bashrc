@@ -18,8 +18,6 @@ function export_if() {
 	[ -x $2 ] && export $1=$2
 }
 
-
-path_if $HOME/.homebrew/bin
 path_if /usr/local/bin
 path_if /usr/local/git/bin
 
@@ -38,33 +36,6 @@ export PAGER=less
 export LESS="-R"
 # if you pipe through $PAGER and see color escape codes try to pipe through stripcolor first
 alias stripcolor='sed "s/\[[0-9;]*m//g"'
-
-# virtualenvwrapper was too slow, all I need is workon
-function workon() {
-	[ -d ~/envs/"$1" ] && source ~/envs/"$1"/bin/activate
-	[ -d ~/projects/"$1" ] && cd ~/projects/"$1"
-}
-
-# ~/bin/colorssh has logic to change my terminal's background color
-[ -e $HOME/bin/colorssh ] && alias ssh=$HOME/bin/colorssh
-
-# git gets confused by the colorssh alias
-export GIT_SSH=/usr/bin/ssh
-
-# git aliases
-function gg() {
-  git commit -v -a -m "$*"
-}
-
-alias ga="git add"
-alias gc="git commit -v"
-alias gp="git push"
-alias gs="git status"
-alias gb="git branch"
-alias gba="git branch -a"
-alias gl="git pull"
-alias gd="git diff"
-alias gco="git checkout"
 
 source_if /usr/local/git/.git-completion.bash
 
