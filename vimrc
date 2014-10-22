@@ -156,16 +156,14 @@ filetype off
 set rtp+=~/.vim/vundle.git
 call vundle#begin()
 Plugin 'gmarik/Vundle.vim'
-
+" git commit editor
 Bundle "git-commit"
+" inkpot theme
 Bundle "inkpot"
-Bundle "git@github.com:ocim/molly.vim.git"
 " Better html handling
 Bundle "git://github.com/othree/html5.vim.git"
 Bundle "Jinja"
-Bundle "git@github.com:ocim/htmljinja.vim.git"
-Bundle "mako.vim"
-Bundle "git@github.com:ocim/htmlmako.vim.git"
+"Bundle "git@github.com:ocim/htmljinja.vim.git"
 Bundle "pep8"
 "Bundle "pyflakes.vim" " needs python2.6 compiled in
 "let g:pyflakes_use_quickfix = 0 " no pyflakes in command window
