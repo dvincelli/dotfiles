@@ -1,10 +1,10 @@
-all: ackrc bashrc bin screenrc tmux mysql vimrc
+all: ackrc bashrc bin screenrc tmux mysql vimrc gitprompt
 
 bin:
 	mkdir -p ~/bin
 
 ackrc: bin
-	[ -e ~/bin/ack ] || curl -s http://betterthangrep.com/ack-standalone > ~/bin/ack && chmod 0755 ~/bin/ack
+	[ -e ~/bin/ack ] || curl -L -s http://betterthangrep.com/ack-standalone > ~/bin/ack && chmod 0755 ~/bin/ack
 	cp ackrc ~/.ackrc
 
 bashrc:
@@ -25,5 +25,8 @@ vimrc:
 	cp gvimrc ~/.gvimrc
 	mkdir -p ~/.vim/plugin
 	[ -e ~/.vim/vundle.git ] || git clone http://github.com/gmarik/vundle.git ~/.vim/vundle.git
+
+gitprompt:
+	curl -L -s https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh > ~/.git-prompt.sh
 
 .PHONY: all ackrc bashrc bin screenrc tmux mysql vimrc

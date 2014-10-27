@@ -53,5 +53,6 @@ export PS1='\h@\w$ '
 
 export PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD/$HOME/~}\007"'
 
+source_if $HOME/.git-prompt.sh
 source_if $HOME/.bashrc.colors
 source_if $HOME/.bashrc.local

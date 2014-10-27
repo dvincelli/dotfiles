@@ -25,5 +25,4 @@ BRIGHT_VIOLET=$'\033[1;35m'
 BRIGHT_CYAN=$'\033[1;36m'
 BRIGHT_WHITE=$'\033[1;37m'
 
-# To create a colorized prompt use the color names in the prompt where desired:
-export PS1="${BRIGHT_GREEN}\h${WHITE}:\w $(vcprompt)${RESET}\n$ "
+export PS1="${BRIGHT_GREEN}\h${WHITE}:\w $(__git_ps1)${RESET}\n$ "
