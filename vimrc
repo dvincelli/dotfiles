@@ -165,10 +165,9 @@ Bundle "git://github.com/othree/html5.vim.git"
 Bundle "Jinja"
 "Bundle "git@github.com:ocim/htmljinja.vim.git"
 Bundle "pep8"
-"Bundle "pyflakes.vim" " needs python2.6 compiled in
-"let g:pyflakes_use_quickfix = 0 " no pyflakes in command window
+
 Bundle 'python.vim--Vasiliev'
-Bundle "git://github.com/tsaleh/vim-matchit.git"
+Bundle "https://github.com/vim-scripts/matchit.zip"
 Bundle "git://github.com/reinh/vim-makegreen.git"
 Bundle "git://github.com/olethanh/Vim-nosecompiler.git"
 Bundle "git://github.com/tpope/vim-fugitive.git"
