@@ -139,9 +139,13 @@ endif
 " hightlight espaces at end of lines
 highlight WhitespaceEOL ctermbg=red guibg=red
 match WhitespaceEOL /\s\+$/
+
 " This will highlight spaces before a tab:
 highlight RedundantSpaces ctermbg=red guibg=red
 match RedundantSpaces /\s\+$\| \+\ze\t/
+
+highlight OverLength ctermbg=darkred ctermfg=white guibg=#FFD9D9
+match OverLength /\%81v.*/
 
 let mapleader=','
 
@@ -190,6 +194,7 @@ Bundle "git://github.com/vim-scripts/camelcasemotion.git"
 
 " on the fly syntax checking
 Bundle "git://github.com/scrooloose/syntastic.git"
+let g:syntastic_python_checkers=['flake8']
 
 " indent guides
 Bundle "git://github.com/nathanaelkane/vim-indent-guides.git"
