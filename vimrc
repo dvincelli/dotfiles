@@ -55,6 +55,14 @@ set title		" setup my title
 set ttymouse=xterm2	" enable mouse in terminal
 set mouse=a		" enable mouse in all modes
 
+" Tell vim to remember certain things when we exit
+" '50  :  marks will be remembered for up to 50 previously edited files
+" "100 :  will save up to 100 lines for each register
+" :20  :  up to 20 lines of command-line history will be remembered
+" %    :  saves and restores the buffer list
+" n... :  where to save the viminfo files
+set viminfo='50,\"100,:20,%,n~/.viminfo
+
 " completion
 set wildmenu		" enable wildmenu
 set wildmode=list:longest,full	" match order
