@@ -28,8 +28,8 @@ set showmatch		" show matching brackets
 set scrolloff=8		" keep at least this many lines above/below cursor
 set sidescrolloff=5	" keep at least this many columns left/right of cursor
 
-" use ack instead of grep
-set grepprg=ack		" ack is smarter
+" use ag instead of grep
+set grepprg=ag		" the silver searcher is smarter and faster
 " this allows me to define ack as a lowercase command and it won't get
 " expanded mid-word
 function! CommandCabbr(abbreviation, expansion)
@@ -38,7 +38,7 @@ endfunction
 command! -nargs=+ CommandCabbr call CommandCabbr(<f-args>)
 " Use it on itself to define a simpler abbreviation for itself.
 CommandCabbr ccab CommandCabbr
-CommandCabbr ack grep
+CommandCabbr ag grep
 
 set showmode		" vim lets us know which mode we're in
 set showcmd		" show partial command in last line of screen
