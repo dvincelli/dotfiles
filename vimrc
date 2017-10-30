@@ -169,7 +169,7 @@ set rtp+=~/.vim/vundle.git
 call vundle#begin()
 Plugin 'gmarik/Vundle.vim'
 " git commit editor
-Bundle "git-commit"
+Bundle "https://github.com/rhysd/committia.vim"
 " inkpot theme
 Bundle "inkpot"
 " Better html handling
@@ -216,6 +216,12 @@ Bundle "git://github.com/gregsexton/gitv.git"
 " vdebug - for xdebug
 Bundle 'joonty/vdebug.git'
 
+" pytest
+Bundle 'pytest-compiler'
+
+" Command-T
+Bundle 'command-t'
+
 call vundle#end()            " required
 filetype plugin indent on    " required
 
@@ -223,7 +229,7 @@ filetype plugin indent on    " required
 
 let mapleader=','
 " Command-T
-nmap <leader>t :tabnew<cr>:Molly<cr>
+"nmap <leader>t :tabnew<cr>:Molly<cr>
 
 
 " tab helpers
