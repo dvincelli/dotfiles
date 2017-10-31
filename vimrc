@@ -76,8 +76,7 @@ highlight Pmenu ctermfg=1 ctermbg=4 guibg=grey30
 set suffixes+=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.cmi,.cmo,.swo,.pyc,TAGS
 
 " personal project hierarchy
-set path=~/projects/**
-
+set path=~/gridos/**
 
 " file explorer preferences
 let g:netrw_list_hide = ".*\.pyc$,^darcs.*,.*patch$,_darcs,*.egg-info,\.svn,\.hg,\.git,\.swp,\.swo"
@@ -132,7 +131,7 @@ if has("autocmd")
 
 	" for Python
 	autocmd FileType python setlocal tabstop=4 shiftwidth=4 expandtab shiftround softtabstop=4 noautoindent foldenable smartindent cinwords=if,elif,else,for,while,with,try,except,finally,def,class
-	autocmd BufNewFile,BufRead *.py compiler nose
+	autocmd BufNewFile,BufRead *.py compiler pytest
 	"autocmd FileType python setlocal omnifunc=pysmell#Complete
 	"autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
 
@@ -184,6 +183,7 @@ Bundle "git://github.com/reinh/vim-makegreen.git"
 Bundle "git://github.com/olethanh/Vim-nosecompiler.git"
 Bundle "git://github.com/tpope/vim-fugitive.git"
 Bundle "git://github.com/kien/ctrlp.vim.git"
+Bundle "git://github.com/trialsolution/gamsvim"
 
 " powerline requires a more modern vim than CentOS provides
 "Bundle "git://github.com/Lokaltog/vim-powerline.git"
@@ -221,6 +221,8 @@ Bundle 'pytest-compiler'
 
 " Command-T
 Bundle 'command-t'
+
+Bundle 'git://github.com/junegunn/rainbow_parentheses.vim'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
