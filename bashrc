@@ -5,7 +5,7 @@ fi
 
 [ -t 0 ] && stty -iexten # if stdin is open disable xon/xoff flow control (^Q, ^S)
 
-PATH=$HOME/bin:$PATH
+PATH=/opt/pkg/bin/bash:$HOME/bin:$PATH
 
 function path_if() {
 	[ -d $1 ] && PATH=$1:$PATH
@@ -20,6 +20,8 @@ function export_if() {
 
 path_if /usr/local/bin
 path_if /usr/local/git/bin
+path_if /opt/pkg/bin
+path_if /opt/gams24.3_osx_x64_64_sfx/
 
 export PATH
 
@@ -37,7 +39,8 @@ export LESS="-R"
 # if you pipe through $PAGER and see color escape codes try to pipe through stripcolor first
 alias stripcolor='sed "s/\[[0-9;]*m//g"'
 
-source_if /usr/local/git/.git-completion.bash
+source_if /usr/local/git/contrib/completion/git-completion.bash
+source_if /usr/local/git/contrib/completion/git-prompt.sh
 
 # Show most used commands from bash history
 function usage {
@@ -49,10 +52,74 @@ function title {
     printf '\33]2;%s\007' "$*"
 }
 
-export PS1='\h@\w$ '
-
-export PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD/$HOME/~}\007"'
-
-source_if $HOME/.git-prompt.sh
-source_if $HOME/.bashrc.colors
 source_if $HOME/.bashrc.local
+
+function reqs {
+     PIP=$VIRTUAL_ENV/bin/pip
+     [ -e requirements-dev.txt ] && $PIP install -r requirements-dev.txt && return
+     [ -e setup.py ] && pip install -e . && $PIP install -e '.[test]'
+     [ -e requirements.txt ] && $PIP install -r requirements.txt
+}
+
+function venv {
+  local VENV_HOME=$HOME/venv
+  local PROJECT="$1"
+
+  if [ -z "${PROJECT}" ]; then
+     PROJECT=$(basename $(pwd))
+  fi
+
+  if [ -d $VENV_HOME/$PROJECT ]; then
+     echo "Activating ${PROJECT} venv"
+  else
+     echo "Creating ${PROJECT} venv"
+     /usr/local/bin/python3.6 -m venv $VENV_HOME/$PROJECT
+     reqs
+  fi
+
+  source $VENV_HOME/$PROJECT/bin/activate
+}
+alias v=venv
+
+alias pt=pytest
+alias px='pytest -x'
+alias pf='pytest --lf'
+
+alias ga='git add -i'
+alias gd='git diff'
+alias gm='git commit'
+alias gs='git status'
+
+alias nopyc='find . -name \*.pyc -delete'
+
+export VIRTUAL_ENV_DISABLE_PROMPT=1
+function prompt_command() {
+    # force __git_ps1 and virtualenv to play nice
+
+    # Runs every single time the prompt is displayed
+    # http://mivok.net/2013/06/10/bash_prompt.html
+
+    GITPROMPT=
+    if type -p __git_ps1; then
+        GIT_PS1_SHOWDIRTYSTATE=1
+        GITPROMPT=$(__git_ps1 "%s")
+    fi
+    if [[ -n $GITPROMPT ]]; then
+        GITPROMPT=" [${GITPROMPT}]"
+    fi
+
+    VENVPROMPT=${VIRTUAL_ENV##*/}
+    if [[ -n $VENVPROMPT ]]; then
+        VENVPROMPT="(${VENVPROMPT})"
+    fi
+
+    NOW=$(date +'%m-%d %H:%M')
+}
+
+function setprompt() {
+    PS1="\w \$VENVPROMPT\$GITPROMPT [\$NOW] (\$?) $ "
+    export PS1
+}
+
+export PROMPT_COMMAND=prompt_command
+setprompt
