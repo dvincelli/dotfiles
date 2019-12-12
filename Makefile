@@ -24,7 +24,8 @@ vimrc:
 	cp vimrc ~/.vimrc
 	cp gvimrc ~/.gvimrc
 	mkdir -p ~/.vim/plugin
-	[ -e ~/.vim/vundle.git ] || git clone http://github.com/gmarik/vundle.git ~/.vim/vundle.git
+	curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+		https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 gitprompt:
 	curl -L -s https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh > ~/.git-prompt.sh

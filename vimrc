@@ -162,77 +162,54 @@ set listchars=tab:_\ ,trail:_
 " Shortcut to rapidly toggle `set list`
 nmap <leader>s :set list!<CR>
 
-" bundle
+" Plug
 filetype off
-set rtp+=~/.vim/vundle.git
-call vundle#begin()
-Plugin 'gmarik/Vundle.vim'
+call plug#begin('~/.vim/plugged')
+
 " git commit editor
-Bundle "https://github.com/rhysd/committia.vim"
+Plug 'rhysd/committia.vim'
+
 " inkpot theme
-Bundle "inkpot"
+Plug 'ciaranm/inkpot'
+
 " Better html handling
-Bundle "git://github.com/othree/html5.vim.git"
-Bundle "Jinja"
-"Bundle "git@github.com:ocim/htmljinja.vim.git"
-Bundle "pep8"
+Plug 'othree/html5.vim'
+Plug 'Jinja'
+Plug 'pep8'
 
-Bundle 'python.vim--Vasiliev'
-Bundle "https://github.com/vim-scripts/matchit.zip"
-Bundle "git://github.com/reinh/vim-makegreen.git"
-Bundle "git://github.com/olethanh/Vim-nosecompiler.git"
-Bundle "git://github.com/tpope/vim-fugitive.git"
-Bundle "git://github.com/kien/ctrlp.vim.git"
-Bundle "git://github.com/trialsolution/gamsvim"
+Plug 'tpope/vim-fugitive'
+Plug 'kien/ctrlp.vim'
 
-" powerline requires a more modern vim than CentOS provides
-"Bundle "git://github.com/Lokaltog/vim-powerline.git"
+"Plug 'Lokaltog/vim-powerline'
 
 " turn ANSI Color codes into syntax color
-Bundle "git://github.com/vim-scripts/AnsiEsc.vim.git"
+Plug 'vim-scripts/AnsiEsc.vim'
 
 " edit one file with root privleges without running the whole session that way
-Bundle "git://github.com/vim-scripts/sudo.vim.git"
+Plug 'vim-scripts/sudo.vim'
 
 " CTRL-X / to close a tag
-Bundle "git://github.com/tpope/vim-ragtag.git"
+Plug 'tpope/vim-ragtag'
 
 " ,w into ProgrammingLanguage prog_lang progLang words
-Bundle "git://github.com/vim-scripts/camelcasemotion.git"
+Plug 'vim-scripts/camelcasemotion'
 
 " on the fly syntax checking
-Bundle "git://github.com/scrooloose/syntastic.git"
-let g:syntastic_python_checkers=['flake8']
+Plug 'scrooloose/syntastic'
+let g:syntastic_python_checkers=['flake8', 'mypy']
 
 " indent guides
-Bundle "git://github.com/nathanaelkane/vim-indent-guides.git"
+Plug 'nathanaelkane/vim-indent-guides'
 
 " github markdown
-Bundle "git://github.com/jtratner/vim-flavored-markdown.git"
+Plug 'jtratner/vim-flavored-markdown'
 
-" gitv - gitk clone, repo viewer
-Bundle "git://github.com/gregsexton/gitv.git"
+Plug 'junegunn/rainbow_parentheses.vim'
 
-" vdebug - for xdebug
-Bundle 'joonty/vdebug.git'
-
-" pytest
-Bundle 'pytest-compiler'
-
-" Command-T
-Bundle 'command-t'
-
-Bundle 'git://github.com/junegunn/rainbow_parentheses.vim'
-
-call vundle#end()            " required
-filetype plugin indent on    " required
-
-
+call plug#end()
+filetype plugin indent on
 
 let mapleader=','
-" Command-T
-"nmap <leader>t :tabnew<cr>:Molly<cr>
-
 
 " tab helpers
 nmap <leader>[ :tabprev<CR>
@@ -255,7 +232,7 @@ nmap <leader>G :grep! <cword><cr>:cwindow<cr>
 nmap <leader>g :grepadd! <cword><cr>:cwindow<cr>
 
 " unittests
-nmap <leader>m :call MakeGreen()<cr>
+"nmap <leader>m :call MakeGreen()<cr>
 
 " set inkpot colorscheme if 256 colors are available
 if (&t_Co >= 256)
