@@ -174,8 +174,6 @@ Plug 'ciaranm/inkpot'
 
 " Better html handling
 Plug 'othree/html5.vim'
-Plug 'Jinja'
-Plug 'pep8'
 
 Plug 'tpope/vim-fugitive'
 Plug 'kien/ctrlp.vim'
