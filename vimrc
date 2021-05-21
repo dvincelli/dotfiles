@@ -94,11 +94,7 @@ if has("autocmd")
 	au! BufRead,BufNewFile /tmp/sql* setfiletype mysql
 	au FileType mysql set si et ts=4 sw=4
 
-	" JavaScript
-	au FileType javascript set si et ts=4 sw=4
-
 	" mako templates
-	au! BufRead,BufNewFile *.mtpl setfiletype htmlmako
 	au BufWinEnter *.mtpl setfiletype htmlmako
 	au! BufRead,BufNewFile *.mako setfiletype htmlmako
 	au BufWinEnter *.mako setfiletype htmlmako
@@ -131,7 +127,7 @@ if has("autocmd")
 
 	" for Python
 	autocmd FileType python setlocal tabstop=4 shiftwidth=4 expandtab shiftround softtabstop=4 noautoindent foldenable smartindent cinwords=if,elif,else,for,while,with,try,except,finally,def,class
-	autocmd BufNewFile,BufRead *.py compiler pytest
+	"autocmd BufNewFile,BufRead *.py compiler pytest
 	"autocmd FileType python setlocal omnifunc=pysmell#Complete
 	"autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
 
@@ -141,6 +137,15 @@ if has("autocmd")
 
 	" email wrap-around at 72 chars
 	au BufRead /tmp/mutt-* set tw=72
+
+	" JavaScript/TypeScript
+	autocmd FileType javascript setlocal tabstop=2 shiftwidth=2 expandtab shiftround softtabstop=2 smartindent
+	autocmd FileType javascriptreact setlocal tabstop=2 shiftwidth=2 expandtab shiftround softtabstop=2 smartindent
+	autocmd FileType typescript setlocal tabstop=2 shiftwidth=2 expandtab shiftround softtabstop=2 smartindent
+	autocmd FileType typescriptreact setlocal tabstop=2 shiftwidth=2 expandtab shiftround softtabstop=2 smartindent
+
+	au BufEnter *.{js,jsx,ts,tsx} :syntax sync fromstart
+	au BufLeave *.{js,jsx,ts,tsx} :syntax sync clear
 endif
 
 " hightlight espaces at end of lines
@@ -173,7 +178,7 @@ Plug 'rhysd/committia.vim'
 Plug 'ciaranm/inkpot'
 
 " Better html handling
-Plug 'othree/html5.vim'
+"Plug 'othree/html5.vim'
 
 Plug 'tpope/vim-fugitive'
 Plug 'kien/ctrlp.vim'
@@ -192,10 +197,6 @@ Plug 'tpope/vim-ragtag'
 " ,w into ProgrammingLanguage prog_lang progLang words
 Plug 'vim-scripts/camelcasemotion'
 
-" on the fly syntax checking
-Plug 'scrooloose/syntastic'
-let g:syntastic_python_checkers=['flake8', 'mypy']
-
 " indent guides
 Plug 'nathanaelkane/vim-indent-guides'
 
@@ -203,6 +204,43 @@ Plug 'nathanaelkane/vim-indent-guides'
 Plug 'jtratner/vim-flavored-markdown'
 
 Plug 'junegunn/rainbow_parentheses.vim'
+
+" Speech Recognition/Voice control. Commented out because I
+" am still figuring out how to install it.
+" Plug 'shippy/vim-grammar'
+
+
+" js/ts plugins
+" on the fly syntax checking. Replaced by LSP (below)
+"Plug 'scrooloose/syntastic'
+"let g:syntastic_python_checkers=['flake8', 'mypy']
+
+" pyright, lsp
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+let g:coc_global_extensions = [
+  \ 'coc-tsserver',
+  \ 'coc-pyright',
+  \ 'coc-json',
+  \ 'coc-yaml',
+  \ 'coc-go',
+  \ 'coc-solargraph'
+  \ ]
+
+" JS / TypeScript / React
+Plug 'pangloss/vim-javascript'
+Plug 'leafgarland/typescript-vim'
+Plug 'peitalin/vim-jsx-typescript'
+Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
+Plug 'jparise/vim-graphql'
+
+" Snippets
+
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+
+" Go
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+
 
 call plug#end()
 filetype plugin indent on
@@ -231,6 +269,7 @@ nmap <leader>g :grepadd! <cword><cr>:cwindow<cr>
 
 " unittests
 "nmap <leader>m :call MakeGreen()<cr>
+
 
 " set inkpot colorscheme if 256 colors are available
 if (&t_Co >= 256)
