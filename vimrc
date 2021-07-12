@@ -44,8 +44,6 @@ set showmode		" vim lets us know which mode we're in
 set showcmd		" show partial command in last line of screen
 set shortmess+=rnixnm	" shorter messages
 
-set statusline=%F%m%r%h%w\ [%Y:%{&ff}]\ [A=\%03.3b]\ [0x=\%02.2B]\ [%l/%L,%v][%p%%]\ %{fugitive#statusline()}
-set laststatus=2 " make the last line where the status is two lines deep so you can see status always
 
 "set nottybuiltin	" maybe not?
 set ttyscroll=5
@@ -173,6 +171,8 @@ call plug#begin('~/.vim/plugged')
 
 " git commit editor
 Plug 'rhysd/committia.vim'
+" git diff status in gutter
+Plug 'mhinz/vim-signify'
 
 " inkpot theme
 Plug 'ciaranm/inkpot'
@@ -449,3 +449,6 @@ nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
 nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
 nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+set statusline=%F%m%r%h%w\ [%Y:%{&ff}]\ [A=\%03.3b]\ [0x=\%02.2B]\ [%l/%L,%v][%p%%]\ %{fugitive#statusline()}\ %{coc#status()}
+
+set laststatus=2 " make the last line where the status is two lines deep so you can see status always
