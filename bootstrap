@@ -5,7 +5,7 @@ then
   then
     cd "$SPIN_REPO_SOURCE_PATH"
     cartridge insert thetrevorharmon/setup-shopify-config
-    source /cartridges/shopify-reportify-config/setup.sh
+    . /cartridges/shopify-reportify-config/setup.sh
 
     restart
   fi
