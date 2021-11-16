@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 if [[ "$SPIN" = 1 ]]
 then
   # Only run nested steps in Spin + shopify/shopify workspaces.
@@ -5,8 +7,7 @@ then
   then
     cd "$SPIN_REPO_SOURCE_PATH"
     cartridge insert thetrevorharmon/setup-shopify-config
-    . /cartridges/setup-shopify-config/setup.sh/setup.sh
-
+    . /cartridges/setup-shopify-config/setup.sh
     restart
   fi
 fi
