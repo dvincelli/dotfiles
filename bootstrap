@@ -6,7 +6,7 @@ then
   if [[ "$SPIN_REPO_SOURCE_PATH" = "/src/github.com/shopify/shopify" || "$SPIN_REPO_SOURCE_PATH" = "/src/github.com/shopify/web" ]]
   then
     cd "$SPIN_REPO_SOURCE_PATH"
-    cartridge insert thetrevorharmon/setup-shopify-config
+    cartridge insert dvincelli/setup-shopify-config
     . /cartridges/setup-shopify-config/setup.sh
     restart
   fi
