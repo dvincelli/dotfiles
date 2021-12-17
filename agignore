@@ -1,0 +1,10 @@
+node_modules/
+tmp/
+tags
+vendor/
+bundle/
+__pycache__/
+.git/
+*.log
+*.swp
+*.swo
