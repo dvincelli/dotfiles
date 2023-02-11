@@ -1,4 +1,9 @@
-set nocompatible	" we don't need vi compatibility, give us all of vim
+set re=0
+
+if &compatible
+  set nocompatible	" we don't need vi compatibility, give us all of vim
+endif
+
 set nomodeline		" do not parse embedded modelines (see: CVE-2007-2438)
 
 set lazyredraw		" don't redraw when running macros
@@ -28,29 +33,25 @@ set showmatch		" show matching brackets
 set scrolloff=8		" keep at least this many lines above/below cursor
 set sidescrolloff=5	" keep at least this many columns left/right of cursor
 
-" use ag instead of grep
-set grepprg=ag		" the silver searcher is smarter and faster
-" this allows me to define ack as a lowercase command and it won't get
-" expanded mid-word
-function! CommandCabbr(abbreviation, expansion)
-	execute 'cabbr ' . a:abbreviation . ' <c-r>=getcmdpos() == 1 && getcmdtype() == ":" ? "' . a:expansion . '" : "' . a:abbreviation . '"<CR>'
-endfunction
-command! -nargs=+ CommandCabbr call CommandCabbr(<f-args>)
-" Use it on itself to define a simpler abbreviation for itself.
-CommandCabbr ccab CommandCabbr
-CommandCabbr ag grep
+" use rg instead of grep
+set grepprg=rg		" the silver searcher is smarter and faster
 
 set showmode		" vim lets us know which mode we're in
 set showcmd		" show partial command in last line of screen
 set shortmess+=rnixnm	" shorter messages
 
+set statusline=%F%m%r%h%w\ [%Y:%{&ff}]\ [A=\%03.3b]\ [0x=\%02.2B]\ [%l/%L,%v][%p%%]\ %{fugitive#statusline()}
+set laststatus=2 " make the last line where the status is two lines deep so you can see status always
 
 "set nottybuiltin	" maybe not?
-set ttyscroll=5
 
-" mouse support
 set title		" setup my title
-set ttymouse=xterm2	" enable mouse in terminal
+
+if ! has('nvim')
+	set ttyscroll=5
+	set ttymouse=xterm2	" enable mouse in terminal
+endif
+
 set mouse=a		" enable mouse in all modes
 
 " Tell vim to remember certain things when we exit
@@ -74,7 +75,7 @@ highlight Pmenu ctermfg=1 ctermbg=4 guibg=grey30
 set suffixes+=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.cmi,.cmo,.swo,.pyc,TAGS
 
 " personal project hierarchy
-set path=~/gridos/**
+set path=~/src/github.com/**
 
 " file explorer preferences
 let g:netrw_list_hide = ".*\.pyc$,^darcs.*,.*patch$,_darcs,*.egg-info,\.svn,\.hg,\.git,\.swp,\.swo"
@@ -92,16 +93,8 @@ if has("autocmd")
 	au! BufRead,BufNewFile /tmp/sql* setfiletype mysql
 	au FileType mysql set si et ts=4 sw=4
 
-	" mako templates
-	au BufWinEnter *.mtpl setfiletype htmlmako
-	au! BufRead,BufNewFile *.mako setfiletype htmlmako
-	au BufWinEnter *.mako setfiletype htmlmako
-
-	" twig templates
-	au! BufRead,BufNewFile *.twig setfiletype htmljinja
-	au BufWinEnter *.twig setfiletype htmljinja
-
 	" jinja templates
+	au! BufRead,BufNewFile *.j2 setfiletype htmljinja
 	au! BufRead,BufNewFile *.jinja setfiletype htmljinja
 	au BufWinEnter *.jinja setfiletype htmljinja
 	au! BufRead,BufNewFile *.html setfiletype htmljinja
@@ -109,14 +102,8 @@ if has("autocmd")
 	autocmd FileType htmljinja set formatoptions+=tl
 	autocmd FileType htmljinja set noai nosi et sw=4 ts=4
 
-	" for Perl programming, have things in braces indenting themselves:
-	autocmd FileType perl set smartindent
-
 	" for CSS, also have things in braces indented:
 	autocmd FileType css set smartindent
-
-	" For PHP we use 8 tabstops and real tab characters
-	autocmd FileType php set noexpandtab tabstop=8
 
 	" in makefiles, don't expand tabs to spaces, since actual tab characters are
 	" needed, and have indentation at 8 chars to be sure that all indents are tabs
@@ -130,11 +117,7 @@ if has("autocmd")
 	"autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
 
 	" commit messages wrap at 76 chars
-	au FileType svn setlocal spell tw=76
 	au FileType git setlocal spell tw=76
-
-	" email wrap-around at 72 chars
-	au BufRead /tmp/mutt-* set tw=72
 
 	" JavaScript/TypeScript
 	autocmd FileType javascript setlocal tabstop=2 shiftwidth=2 expandtab shiftround softtabstop=2 smartindent
@@ -266,7 +249,7 @@ nmap <leader>c :cwindow<cr>
 nmap <leader>k :cprev<cr>
 nmap <leader>j :cnext<cr>
 
-" grep/ack helpers
+" grep/rg helpers
 nmap <leader>G :grep! <cword><cr>:cwindow<cr>
 nmap <leader>g :grepadd! <cword><cr>:cwindow<cr>
 
