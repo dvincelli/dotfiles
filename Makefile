@@ -9,6 +9,7 @@ agignore:
 bashrc:
 	ln -s bashrc ~/.bashrc
 	ln -s bashrc.colors ~/.bashrc.colors
+	ln -s bashrc.k8s ~/.bashrc.k8s
 
 screenrc:
 	ln -s screenrc ~/.screenrc

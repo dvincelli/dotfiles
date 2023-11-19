@@ -53,6 +53,7 @@ function title {
 }
 
 source_if $HOME/.bashrc.local
+source_if $HOME/.bashrc.k8s
 
 function reqs {
      PIP=$VIRTUAL_ENV/bin/pip
@@ -114,10 +115,12 @@ function prompt_command() {
     fi
 
     NOW=$(date +'%m-%d %H:%M')
+
+    K8SPROMPT=$(kprompt)
 }
 
 function setprompt() {
-    PS1="\w \$VENVPROMPT\$GITPROMPT [\$NOW] (\$?) $ "
+    PS1="\w \$VENVPROMPT\$GITPROMPT \$K8SPROMPT [\$NOW] (\$?) $ "
     export PS1
 }
 
