@@ -1,28 +1,123 @@
 [color]
-	status = auto
-	branch = auto
-	interactive = auto
-	diff = auto
+status = auto
+branch = auto
+interactive = auto
+diff = auto
 
 [alias]
-	co = checkout
-	st = status
-	ci = commit
-	br = branch
-	df = diff
-	lg = log -p
-	lol = log --graph --decorate --pretty=oneline --abbrev-commit
-	lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
-	ls = ls-files
+co = checkout
+st = status
+ci = commit
+br = branch
+df = diff
+lg = log -p
+lol = log --graph --decorate --pretty=oneline --abbrev-commit
+lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+ls = ls-files
 
 [core]
-	excludesfile = ~/.gitignore
+excludesfile = ~/.gitignore
 
-[git-tmbundle]
-	gitx-path = gitx
+;[git-tmbundle]
+;gitx-path = gitx
+;
+;[mergetool "diffmerge"]
+;cmd = diffmerge --merge --result=$MERGED $LOCAL $BASE $REMOTE
+;trustExitCode = false
+;
+;[merge]
+;tool = diffmerge
 
-[mergetool "diffmerge"]
-	cmd = diffmerge --merge --result=$MERGED $LOCAL $BASE $REMOTE
-	trustExitCode = false
+[color]
+status = auto
+branch = auto
+interactive = auto
+diff = auto
+
+[alias]
+co = checkout
+st = status
+ci = commit
+br = branch
+df = diff
+lg = log -p
+lol = log --graph --branches --decorate --pretty=oneline --graph
+lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+ls = ls-files
+lrt = branch --sort=-committerdate
+amend = commit -a --amend --no-edit
+a = commit -a --amend --no-edit
+l = lol
+dead = branch --merged main^
+current = branch --show-current
+w = show-branch --current
+shove = push --force-with-lease --force-if-includes
+s = shove
+d = diff
+spop = stash pop
+spush = stash push
+p = pull
+f = fetch
+
+[blame]
+coloring = repeatedLines
+markUnblamables = true
+markIgnoredlines = true
+
+[branch]
+sort = -committerdate
+
+[checkout]
+defaultRemote = origin
+
+[color]
+branch = auto
+diff = auto
+status = auto
+
+[column]
+ui = auto
+
+[diff]
+mnemonicPrefix = true
+wsErrorHighlight = all
+colorMoved = dimmed-zebra
+wordDiff = color
+algorithm = minimal
+
+[fetch]
+prune = true
+pruneTags = true
+output = compact
+parallel = 0
+
+[grep]
+extendedRegexp = true
+
+[help]
+autoCorrect = 1
+
 [merge]
-	tool = diffmerge
+conflictStyle = diff3
+
+[push]
+default = current
+followTags = true
+
+[showBranch]
+default = HEAD
+default = main
+
+
+[status]
+relativePaths = false
+short = true
+branch = true
+
+[rerere]
+enabled = true
+autoUpdate = true
+
+[push]
+autoSetupRemote = true
+default = current
