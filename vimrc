@@ -34,7 +34,8 @@ set scrolloff=8		" keep at least this many lines above/below cursor
 set sidescrolloff=5	" keep at least this many columns left/right of cursor
 
 " use rg instead of grep
-set grepprg=rg		" the silver searcher is smarter and faster
+set grepprg=rg\	--vimgrep " ripgrep is smarter and faster
+set grepformat^=%f:%l:%c:%m
 
 set showmode		" vim lets us know which mode we're in
 set showcmd		" show partial command in last line of screen
@@ -115,6 +116,9 @@ if has("autocmd")
 	"autocmd BufNewFile,BufRead *.py compiler pytest
 	"autocmd FileType python setlocal omnifunc=pysmell#Complete
 	"autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+	
+	" for Shell
+	autocmd FileType sh setlocal ts=4 sw=4 et softtabstop=4 smartindent
 
 	" commit messages wrap at 76 chars
 	au FileType git setlocal spell tw=76
