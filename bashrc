@@ -19,9 +19,6 @@ function export_if() {
 }
 
 path_if /usr/local/bin
-path_if /usr/local/git/bin
-path_if /opt/pkg/bin
-path_if /opt/gams24.3_osx_x64_64_sfx/
 
 export PATH
 
@@ -41,6 +38,9 @@ alias stripcolor='sed "s/\[[0-9;]*m//g"'
 
 source_if /usr/local/git/contrib/completion/git-completion.bash
 source_if /usr/local/git/contrib/completion/git-prompt.sh
+
+source_if /usr/share/bash-completion/completions/git
+source_if /etc/bash_completion.d/git-prompt
 
 # Show most used commands from bash history
 function usage {
@@ -126,3 +126,7 @@ function setprompt() {
 
 export PROMPT_COMMAND=prompt_command
 setprompt
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
