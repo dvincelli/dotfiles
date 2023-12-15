@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    if [[ $1 == "copy" ]]; then
+        pbcopy
+    elif [[ $1 == "paste" ]]; then
+        pbpaste
+    fi
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    if [[ $1 == "copy" ]]; then
+        xclip -selection clipboard
+    elif [[ $1 == "paste" ]]; then
+        xclip -selection clipboard -o
+    fi
+else
+    echo "Your OS is not supported for this clipboard command."
+fi
