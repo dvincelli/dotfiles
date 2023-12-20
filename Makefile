@@ -21,9 +21,9 @@ mysql:
 	ln -sf $(PWD)/my.cnf ~/.my.cnf
 
 vimrc:
-	ln -sf vimrc $(PWD)/.vimrc
-	ln -sf gvimrc $(PWD)/.gvimrc
-	mkdir -p $(PWD)/.vim/plugin
+	ln -sf $(PWD)/vimrc ~/.vimrc
+	ln -sf $(PWD)/gvimrc ~/.gvimrc
+	mkdir -p ~/.vim/plugin
 	curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 		https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 

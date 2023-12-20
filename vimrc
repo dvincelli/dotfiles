@@ -59,7 +59,7 @@ set ttyscroll=5
 
 " mouse support
 set title		" setup my title
-set ttymouse=xterm2	" enable mouse in terminal
+set ttymouse=sgr	" enable mouse in terminal
 set mouse=a		" enable mouse in all modes
 
 " Tell vim to remember certain things when we exit
@@ -192,7 +192,7 @@ Plug 'ciaranm/inkpot'
 "Plug 'othree/html5.vim'
 
 Plug 'tpope/vim-fugitive'
-Plug 'kien/ctrlp.vim'
+Plug 'ctrlpvim/ctrlp.vim'
 
 "Plug 'Lokaltog/vim-powerline'
 
@@ -259,6 +259,7 @@ Plug 'prettier/vim-prettier' , {
 "Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 
+
 " Go
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
@@ -270,6 +271,11 @@ Plug 'ciaranm/inkpot'
 
 " kotlin
 Plug 'udalov/kotlin-vim'
+
+Plug 'github/copilot.vim'
+
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
 
 call plug#end()
 filetype plugin indent on
