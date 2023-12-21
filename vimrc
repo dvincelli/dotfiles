@@ -1,3 +1,5 @@
+" warning this is a neovim config file
+
 " Enable for debugging...
 "profile start ~/vim-profile.log
 
@@ -73,7 +75,18 @@ set mouse=a		" enable mouse in all modes
 " :500  :  up to 500 lines of command-line history will be remembered
 " %    :  saves and restores the buffer list
 " n... :  where to save the viminfo files
-set viminfo='50,\"100,:500,%,n~/.viminfo
+"
+if has('nvim')
+  set viminfo='50,\"100,:500,%,n~/.viminfo
+else
+  " TODO do the same for shada
+  set shada='50,\"100,:500,%,n~/.viminfo
+endif
+
+nnoremap y "+y
+vnoremap y "+y
+nnoremap d "*d
+vnoremap d "*d
 
 "" completion
 "set wildmenu		" enable wildmenu
@@ -123,6 +136,7 @@ call plug#begin('~/.vim/plugged')
 
 " git commit editor
 Plug 'rhysd/committia.vim'
+
 " git diff status in gutter
 Plug 'mhinz/vim-signify'
 
@@ -184,7 +198,7 @@ Plug 'sainnhe/sonokai'
 " kotlin
 Plug 'udalov/kotlin-vim'
 
-" copilot
+" GitHub Copilot
 Plug 'github/copilot.vim'
 
 " LSP
@@ -242,6 +256,19 @@ Plug 'tpope/vim-scriptease'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-vinegar'
+
+" Quick navigation
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'yegappan/mru'
+
+" Run unit tests
+Plug 'vim-test/vim-test'
+
+" Respect .editorconfig
+Plug 'editorconfig/editorconfig-vim'
+
+" ruff lsp
+Plug 'astral-sh/ruff-lsp'
 
 call plug#end()
 
@@ -325,12 +352,10 @@ set timeout
 
 " ChatGPT, WhicKey
 lua <<EOF
--- chat gpt
 require("chatgpt").setup()
 
 local wk = require("which-key")
-wk.setup(
-)
+wk.setup()
 
 wk.register({
   c = {
@@ -437,6 +462,18 @@ wk.register({
   prefix = "<leader>",
   }
 )
+-- Configure `ruff-lsp`.
+-- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#ruff_lsp
+-- For the default config, along with instructions on how to customize the settings
+-- require'lspconfig'.ruff_lsp.setup {
+--   on_attach = on_attach,
+--   init_options = {
+--     settings = {
+--       -- Any extra CLI arguments for `ruff` go here.
+--       args = {},
+--     }
+--   }
+-- }
 EOF
 
 " ragtag
@@ -448,3 +485,33 @@ let g:ragtag_global_maps = 1
 if filereadable(expand("~/.vimrc.local"))
   source ~/.vimrc.local	
 endif
+
+let test#strategy = "neovim"
+
+if has("autocmd")
+ -" mako templates
+  au BufWinEnter *.mtpl setfiletype htmlmako
+  au! BufRead,BufNewFile *.mako setfiletype htmlmako
+  au BufWinEnter *.mako setfiletype htmlmako
+
+  " twig templates
+  au! BufRead,BufNewFile *.twig setfiletype htmldjango
+  au BufWinEnter *.twig setfiletype htmldjango
+
+  " jinja templates
+  au! BufRead,BufNewFile *.jinja setfiletype htmldjango
+  au! BufRead,BufNewFile *.j2 setfiletype htmldjango
+  au! BufRead,BufNewFile *.jinja2 setfiletype htmldjango
+  au BufWinEnter *.jinja setfiletype htmldjango
+  au BufWinEnter *.j2 setfiletype htmldjango
+  au BufWinEnter *.jinja2 setfiletype htmldjango
+  autocmd FileType htmldjango set formatoptions+=tl
+  autocmd FileType htmldjango set noai nosi et sw=4 ts=4
+
+  " for Perl programming, have things in braces indenting themselves:
+  autocmd FileType perl set smartindent
+
+  " for CSS, also have things in braces indented:
+  autocmd FileType css set smartindent
+endif
+  
