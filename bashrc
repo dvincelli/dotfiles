@@ -141,3 +141,7 @@ fi
 
 
 export ROC_ENABLE_PRE_VEGA=1
+
+alias vim=nvim
+alias v=nvim
+alias nv=nvim

@@ -1,4 +1,4 @@
-profile start ~/vim-profile.log
+"profile start ~/vim-profile.log
 
 "set re=0
 
