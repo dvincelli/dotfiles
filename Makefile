@@ -27,6 +27,9 @@ vimrc:
 	curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 		https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
+nvimrc:
+	ln -sf $(PWD)/vimrc ~/.config/nvim/init.vim
+
 gitprompt:
 	curl -L -s https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh > ~/.git-prompt.sh
 
