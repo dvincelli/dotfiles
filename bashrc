@@ -22,7 +22,7 @@ path_if /usr/local/bin
 
 export PATH
 
-EDITOR=vim
+EDITOR=nvim
 export EDITOR
 export GIT_EDITOR="$EDITOR -f"
 
