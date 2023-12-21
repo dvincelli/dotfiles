@@ -19,6 +19,11 @@ function kns() {
     kubectl config set-context --current --namespace="$ns"
 }
 
+function kdel() {
+    pod=$(kubectl get all -o name | fzf)
+    kubectl delete "$pod"
+}
+
 function kpod() {
     pod=$(kubectl get pod -o name | fzf)
     kubectl describe "$pod"
@@ -65,8 +70,8 @@ function kexec() {
 }
 
 function kprompt() {
-    ctx=$(kubectl config current-context)
-    ns=$(kubectl config get-contexts "$ctx" --no-headers | awk '{ print $5 }')
-    cluster=$(kubectl config get-contexts "$ctx" --no-headers | awk '{ print $3 }')
+    ctx=$(kubectl config current-context 2>/dev/null)
+    ns=$(kubectl config get-contexts "$ctx" --no-headers 2>/dev/null| awk '{ print $5 }')
+    cluster=$(kubectl config get-contexts "$ctx" --no-headers 2>/dev/null| awk '{ print $3 }')
     echo "[k8s:$ns@$cluster]"
 }

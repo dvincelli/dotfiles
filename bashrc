@@ -116,7 +116,7 @@ function prompt_command() {
 
     NOW=$(date +'%m-%d %H:%M')
 
-    K8SPROMPT=$(kprompt)
+    K8SPROMPT=$(kprompt 2>/dev/null)
 }
 
 function setprompt() {
@@ -130,3 +130,14 @@ setprompt
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+
+alias k=kubectl
+
+if ! shopt -oq posix; then
+    source_if /etc/bash_completion
+    source_if "${HOME}/.kube/completion.bash.inc"
+fi
+
+
+export ROC_ENABLE_PRE_VEGA=1
