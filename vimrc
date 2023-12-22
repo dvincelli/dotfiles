@@ -360,7 +360,7 @@ let $FZF_DEFAULT_COMMAND = 'rg --files --hidden --follow --glob "!.git/*" --max-
 nnoremap <leader>f :FZF<CR>
 
 " MRU
-nnoremap <leader>m :MRU<CR>
+nnoremap <leader>m :FZFMru<CR>
 
 " vim-test
 nmap <silent> <leader>t :TestNearest<CR>
