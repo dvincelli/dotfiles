@@ -5,17 +5,17 @@ fi
 
 [ -t 0 ] && stty -iexten # if stdin is open disable xon/xoff flow control (^Q, ^S)
 
-PATH=/opt/pkg/bin/bash:$HOME/bin:$PATH
+PATH="/opt/pkg/bin/bash:$HOME/bin:$PATH"
 
 function path_if() {
-	[ -d $1 ] && PATH=$1:$PATH
+	[ -d "$1" ] && PATH="$1:$PATH"
 }
 
 function source_if() {
-	[ -r $1 ] && source $1
+	[ -r "$1" ] && source "$1"
 }
 function export_if() {
-	[ -x $2 ] && export $1=$2
+	[ -x "$2" ] && export "$1"="$2"
 }
 
 path_if /usr/local/bin
@@ -26,9 +26,9 @@ EDITOR=nvim
 export EDITOR
 export GIT_EDITOR="$EDITOR -f"
 
-export_if SVN_EDITOR $HOME/bin/svneditor
-export_if GIT_EDITOR $HOME/bin/giteditor
-export_if HG_EDITOR $HOME/bin/hgeditor
+export_if SVN_EDITOR "$HOME/bin/svneditor"
+export_if GIT_EDITOR "$HOME/bin/giteditor"
+export_if HG_EDITOR "$HOME/bin/hgeditor"
 
 export PAGER=less
 # make less pass through ANSI color codes so you can see colors in the pager
@@ -52,8 +52,8 @@ function title {
     printf '\33]2;%s\007' "$*"
 }
 
-source_if $HOME/.bashrc.local
-source_if $HOME/.bashrc.k8s
+source_if "$HOME/.bashrc.local"
+source_if "$HOME/.bashrc.k8s"
 
 function reqs {
      PIP=$VIRTUAL_ENV/bin/pip
@@ -67,7 +67,7 @@ function venv {
   local PROJECT="$1"
 
   if [ -z "${PROJECT}" ]; then
-     PROJECT=$(basename $(pwd))
+     PROJECT=$(basename "$(pwd)")
   fi
 
   if [ -d $VENV_HOME/$PROJECT ]; then
@@ -78,7 +78,7 @@ function venv {
      reqs
   fi
 
-  source $VENV_HOME/$PROJECT/bin/activate
+  source "$VENV_HOME/$PROJECT/bin/activate"
 }
 alias v=venv
 
@@ -93,6 +93,10 @@ alias gs='git status'
 
 alias nopyc='find . -name \*.pyc -delete'
 
+export GIT_PS1_SHOWDIRTYSTATE=1
+export GIT_PS1_SHOWSTASHSTATE=1
+export GIT_PS1_SHOWUNTRACKEDFILES=1
+export GIT_PS1_SHOWUPSTREAM=auto
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 function prompt_command() {
     # force __git_ps1 and virtualenv to play nice
@@ -102,7 +106,6 @@ function prompt_command() {
 
     GITPROMPT=
     if type -p __git_ps1; then
-        GIT_PS1_SHOWDIRTYSTATE=1
         GITPROMPT=$(__git_ps1 "%s")
     fi
     if [[ -n $GITPROMPT ]]; then
@@ -117,6 +120,9 @@ function prompt_command() {
     NOW=$(date +'%m-%d %H:%M')
 
     K8SPROMPT=$(kprompt 2>/dev/null)
+    if [[ -n $K8SPROMPT ]]; then
+        K8SPROMPT="(${K8SPROMPT})"
+    fi
 }
 
 function setprompt() {
@@ -131,12 +137,12 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-
 alias k=kubectl
 
 if ! shopt -oq posix; then
     source_if /etc/bash_completion
     source_if "${HOME}/.kube/completion.bash.inc"
+    complete -F __start_kubectl k
 fi
 
 
