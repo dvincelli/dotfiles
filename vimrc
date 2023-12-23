@@ -5,8 +5,6 @@
 
 set nocompatible     " we don't need vi compatibility, give us all of vim
 
-set runtimepath+=~/.data/cartridges/vim
-
 "set statusline=%F%m%r%h%w%=\ [%Y]\ [%{&ff}]\ [%04l,%04v]\ [%p%%]\ [%L]
 set statusline=%F%m%r%h%w\ [%Y:%{&ff}]\ [A=\%03.3b]\ [0x=\%02.2B]\ [%l/%L,%v][%p%%]\ %{fugitive#statusline()}
 
