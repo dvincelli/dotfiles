@@ -250,18 +250,29 @@ Plug 'ciaranm/inkpot'
 " kotlin
 Plug 'udalov/kotlin-vim'
 
+" copilot
 Plug 'github/copilot.vim'
 
-" LSP to rule them all
+" LSP
 Plug 'prabirshrestha/vim-lsp'
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'mattn/vim-lsp-settings'
 
+" :FZF
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 
+" :MRU, also provides :FZFMru
 Plug 'yegappan/mru'
 
+" :TestNearest, :TestFile, :TestSuite, :TestLast, :TestVisit
 Plug 'vim-test/vim-test'
+
+" :ChatGPT
+Plug 'jackMort/ChatGPT.nvim'
+Plug 'MunifTanjim/nui.nvim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
+      "
 
 call plug#end()
 
@@ -368,3 +379,9 @@ nmap <silent> <leader>T :TestFile<CR>
 nmap <silent> <leader>a :TestSuite<CR>
 nmap <silent> <leader>l :TestLast<CR>
 nmap <silent> <leader>g :TestVisit<CR>
+
+" ChatGPT
+lua <<EOF
+-- chat gpt
+require("chatgpt").setup()
+EOF
