@@ -1,3 +1,4 @@
+
 all: bashrc bin screenrc tmux mysql vimrc gitprompt agignore
 
 bin:
@@ -28,6 +29,9 @@ vimrc:
 		https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 nvimrc:
+	mkdir -p ~/.config/nvim
+	curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
+		https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 	ln -sf $(PWD)/vimrc ~/.config/nvim/init.vim
 
 gitprompt:
