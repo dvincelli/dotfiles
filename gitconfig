@@ -105,10 +105,12 @@ default = current
 followTags = true
 autoSetupRemote = true
 
+[pull]
+default = current
+
 [showBranch]
 default = HEAD
 default = main
-
 
 [status]
 relativePaths = false
@@ -118,7 +120,3 @@ branch = true
 [rerere]
 enabled = true
 autoUpdate = true
-
-[push]
-autoSetupRemote = true
-default = current
