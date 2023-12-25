@@ -17,6 +17,7 @@ ls = ls-files
 
 [core]
 excludesfile = ~/.gitignore
+autocrlf = input
 
 ;[git-tmbundle]
 ;gitx-path = gitx
