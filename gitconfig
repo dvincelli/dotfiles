@@ -103,6 +103,7 @@ conflictStyle = diff3
 [push]
 default = current
 followTags = true
+autoSetupRemote = true
 
 [showBranch]
 default = HEAD
