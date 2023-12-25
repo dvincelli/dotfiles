@@ -2,6 +2,7 @@ apt:
   - fzf
   - jq
   - ripgrep
+  - xclip
 
 snap:
   - yq
