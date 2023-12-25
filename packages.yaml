@@ -1,0 +1,15 @@
+apt:
+  - fzf
+  - jq
+  - ripgrep
+
+snap:
+  - yq
+  - nvim --classic
+  - rustup --classic
+  - --edge pyenv
+
+brew:
+  - jq
+  - yq
+  - ripgrep

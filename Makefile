@@ -1,8 +1,5 @@
 
-all: bashrc bin screenrc tmux mysql vimrc gitprompt agignore
-
-bin:
-	mkdir -p ~/bin
+all: bashrc screenrc tmux mysql nvimrc nvim gitprompt agignore rgignore gitconfig pb
 
 rgignore:
 	ln -sf $(PWD)/rgignore ~/.rgignore
@@ -11,6 +8,9 @@ bashrc:
 	ln -sf $(PWD)/bashrc ~/.bashrc
 	ln -sf $(PWD)/bashrc.colors ~/.bashrc.colors
 	ln -sf $(PWD)/bashrc.k8s ~/.bashrc.k8s
+
+gitconfig:
+	ln -sf $(PWD)/gitconfig ~/.gitconfig.local
 
 screenrc:
 	ln -sf $(PWD)/screenrc ~/.screenrc
@@ -41,6 +41,11 @@ nvm:
 	export NVM_DIR="$(HOME)/.nvm" && (   git clone https://github.com/nvm-sh/nvm.git "$(NVM_DIR)";   cd "$(NVM_DIR)";   git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1)`; ) && \. "$(NVM_DIR)/nvm.sh"
 
 pb:
-	ln -s pb ~/bin/pb
+	mkdir -p ~/bin
+	ln -s $(PWD)/pb ~/bin/pb
 
-.PHONY: all ackrc bashrc bin screenrc tmux mysql vimrc rgignore pb nvm
+packages:
+	 yq -r .snap[] < packages.yaml | xargs -L1 sudo snap install
+	 yq -r .apt[] < packages.yaml | xargs -L1 sudo apt install -y --no-install-recommends
+
+.PHONY: all ackrc bashrc bin screenrc tmux mysql vimrc rgignore nvm gitconfig pb packages
