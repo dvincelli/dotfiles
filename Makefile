@@ -1,5 +1,6 @@
+UNAME=$(shell uname)
 
-all: bashrc screenrc tmux mysql nvimrc nvim gitprompt agignore rgignore gitconfig pb
+all: bashrc screenrc tmux mysql nvimrc nvim gitprompt agignore rgignore gitconfig pb packages
 
 rgignore:
 	ln -sf $(PWD)/rgignore ~/.rgignore
@@ -31,7 +32,7 @@ vimrc:
 nvimrc:
 	mkdir -p ~/.config/nvim
 	curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
-		https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+		https://raw.githubusercontent.com/junegunn/vim-plug/masterend/plug.vim
 	ln -sf $(PWD)/vimrc ~/.config/nvim/init.vim
 
 gitprompt:
@@ -45,7 +46,13 @@ pb:
 	ln -s $(PWD)/pb ~/bin/pb
 
 packages:
-	 yq -r .snap[] < packages.yaml | xargs -L1 sudo snap install
-	 yq -r .apt[] < packages.yaml | xargs -L1 sudo apt install -y --no-install-recommends
+ifeq ($(UNAME),Linux)
+	sudo snap install yq
+	yq -r '.snap[]' < packages.yaml | xargs -L1 sudo snap install
+	yq -r '.apt[]' < packages.yaml | xargs -L1 sudo apt install -y --no-install-recommends
+endif
+ifeq ($(UNAME),Darwin)
+	yq -r '.brew[]' < packages.yaml | xargs -L1 brew install
+endif
 
 .PHONY: all ackrc bashrc bin screenrc tmux mysql vimrc rgignore nvm gitconfig pb packages

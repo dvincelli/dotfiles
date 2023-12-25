@@ -13,3 +13,5 @@ brew:
   - jq
   - yq
   - ripgrep
+  - neovim
+  - pyenv
