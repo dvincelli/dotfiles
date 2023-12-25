@@ -1,6 +1,6 @@
 UNAME=$(shell uname)
 
-all: bashrc screenrc tmux mysql nvimrc nvim gitprompt agignore rgignore gitconfig pb packages
+all: bashrc screenrc tmux mysql nvim gitprompt agignore rgignore gitconfig pb packages
 
 rgignore:
 	ln -sf $(PWD)/rgignore ~/.rgignore
@@ -22,17 +22,10 @@ tmux:
 mysql:
 	ln -sf $(PWD)/my.cnf ~/.my.cnf
 
-vimrc:
-	ln -sf $(PWD)/vimrc ~/.vimrc
-	ln -sf $(PWD)/gvimrc ~/.gvimrc
-	mkdir -p ~/.vim/plugin
-	curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-		https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-
-nvimrc:
+nvim:
 	mkdir -p ~/.config/nvim
 	curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
-		https://raw.githubusercontent.com/junegunn/vim-plug/masterend/plug.vim
+		https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 	ln -sf $(PWD)/vimrc ~/.config/nvim/init.vim
 
 gitprompt:
@@ -55,4 +48,4 @@ ifeq ($(UNAME),Darwin)
 	yq -r '.brew[]' < packages.yaml | xargs -L1 brew install
 endif
 
-.PHONY: all ackrc bashrc bin screenrc tmux mysql vimrc rgignore nvm gitconfig pb packages
+.PHONY: all ackrc bashrc bin screenrc tmux mysql nvim rgignore nvm gitconfig pb packages gitprompt
