@@ -58,6 +58,7 @@ spop = stash pop
 spush = stash push
 p = pull
 f = fetch
+hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
 
 [blame]
 coloring = repeatedLines
@@ -96,6 +97,9 @@ extendedRegexp = true
 
 [help]
 autoCorrect = 1
+
+[init]
+defaultBranch = main
 
 [merge]
 conflictStyle = diff3
