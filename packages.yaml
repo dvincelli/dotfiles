@@ -3,6 +3,7 @@ apt:
   - jq
   - ripgrep
   - xclip
+  - kubetail
 
 snap:
   - yq
