@@ -19,9 +19,8 @@ set t_vb=
 set noerrorbells
 
 set history=1000	" keep some history
-
-set clipboard=unnamed	" Uses OS clipboard (shares clipboard accross vim instances)
-"set clipboard=*	" Uses OS clipboard (shares clipboard accross vim instances)
+ 
+set clipboard+=unnamedplus " Uses OS clipboard (shares clipboard accross vim instances)
 
 set backspace=indent,eol,start " backspace over autoident, EOL, and start of insert
 
@@ -159,6 +158,7 @@ if has("autocmd")
 	au BufEnter *.{js,jsx,ts,tsx} :syntax sync fromstart
 	au BufLeave *.{js,jsx,ts,tsx} :syntax sync clear
 
+	autocmd FileType xml setlocal ts=2 sw=2 et shiftround sts=2 si
 	autocmd FileType xml setlocal ts=2 sw=2 et shiftround sts=2 si
 endif
 
