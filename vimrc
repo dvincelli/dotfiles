@@ -246,6 +246,9 @@ Plug 'honza/vim-snippets'
 Plug 'wesgibbs/vim-irblack'
 Plug 'tpope/vim-vividchalk'
 Plug 'ciaranm/inkpot'
+Plug 'altercation/vim-colors-solarized'
+Plug 'folke/tokyonight.nvim'
+Plug 'sainnhe/sonokai'
 
 " kotlin
 Plug 'udalov/kotlin-vim'
@@ -272,7 +275,11 @@ Plug 'jackMort/ChatGPT.nvim'
 Plug 'MunifTanjim/nui.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
-      "
+
+" :WhichKey
+Plug  'folke/which-key.nvim'
+
+Plug 'nvim-tree/nvim-web-devicons'
 
 call plug#end()
 
@@ -312,7 +319,7 @@ nmap <leader>g :grepadd! <cword><cr>:cwindow<cr>
 if (&t_Co >= 256)
 	if exists("syntax_on")
 		syntax reset
- 	endif
+	endif
 	colorscheme vividchalk
 endif
 
@@ -326,6 +333,7 @@ set cmdheight=2
 
 " asynccomplete.vim
 set completeopt+=noinsert,menuone,noselect
+
 inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 "inoremap <expr> <cr>    pumvisible() ? asyncomplete#close_popup() : "\<cr>"
@@ -352,8 +360,6 @@ function! s:on_lsp_buffer_enabled() abort
     nmap <buffer> [g <plug>(lsp-previous-diagnostic)
     nmap <buffer> ]g <plug>(lsp-next-diagnostic)
     nmap <buffer> K <plug>(lsp-hover)
-    nnoremap <buffer> <expr><c-f> lsp#scroll(+4)
-    nnoremap <buffer> <expr><c-d> lsp#scroll(-4)
 
     let g:lsp_format_sync_timeout = 1000
     autocmd! BufWritePre *.rs,*.go call execute('LspDocumentFormatSync')
@@ -380,8 +386,79 @@ nmap <silent> <leader>a :TestSuite<CR>
 nmap <silent> <leader>l :TestLast<CR>
 nmap <silent> <leader>g :TestVisit<CR>
 
-" ChatGPT
+set timeoutlen=300
+set timeout
+
+" ChatGPT, WhicKey
 lua <<EOF
 -- chat gpt
 require("chatgpt").setup()
+
+local wk = require("which-key")
+wk.setup()
+
+wk.register({
+  c = {
+    name = "ChatGPT",
+      c = { "<cmd>ChatGPT<CR>", "ChatGPT" },
+      e = { "<cmd>ChatGPTEditWithInstruction<CR>", "Edit with instruction", mode = { "n", "v" } },
+      g = { "<cmd>ChatGPTRun grammar_correction<CR>", "Grammar Correction", mode = { "n", "v" } },
+      t = { "<cmd>ChatGPTRun translate<CR>", "Translate", mode = { "n", "v" } },
+      k = { "<cmd>ChatGPTRun keywords<CR>", "Keywords", mode = { "n", "v" } },
+      d = { "<cmd>ChatGPTRun docstring<CR>", "Docstring", mode = { "n", "v" } },
+      a = { "<cmd>ChatGPTRun add_tests<CR>", "Add Tests", mode = { "n", "v" } },
+      o = { "<cmd>ChatGPTRun optimize_code<CR>", "Optimize Code", mode = { "n", "v" } },
+      s = { "<cmd>ChatGPTRun summarize<CR>", "Summarize", mode = { "n", "v" } },
+      f = { "<cmd>ChatGPTRun fix_bugs<CR>", "Fix Bugs", mode = { "n", "v" } },
+      x = { "<cmd>ChatGPTRun explain_code<CR>", "Explain Code", mode = { "n", "v" } },
+      r = { "<cmd>ChatGPTRun roxygen_edit<CR>", "Roxygen Edit", mode = { "n", "v" } },
+      l = { "<cmd>ChatGPTRun code_readability_analysis<CR>", "Code Readability Analysis", mode = { "n", "v" } },
+    },
+  l = {
+    name = "LSP",
+      a = { "<cmd>lua vim.lsp.buf.code_action()<CR>", "Code action" },
+      d = { "<cmd>lua vim.lsp.buf.definition()<CR>", "Go to definition" },
+      f = { "<cmd>lua vim.lsp.buf.formatting()<CR>", "Format code" },
+      h = { "<cmd>lua vim.lsp.buf.hover()<CR>", "Show hover information" },
+      i = { "<cmd>lua vim.lsp.buf.implementation()<CR>", "Go to implementation" },
+      r = { "<cmd>lua vim.lsp.buf.references()<CR>", "Find references" },
+      t = { "<cmd>lua vim.lsp.buf.type_definition()<CR>", "Go to type definition" },
+      R = { "<cmd>lua vim.lsp.buf.rename()<CR>", "Rename symbol" },
+      s = { "<cmd>lua vim.lsp.buf.document_symbol()<CR>", "Document symbols" },
+      -- S = { "<cmd>lua vim.lsp.buf.workspace_symbol_search()<CR>", "Workspace symbol search" },
+    -- nmap <buffer> [g <plug>(lsp-previous-diagnostic)
+    -- nmap <buffer> ]g <plug>(lsp-next-diagnostic)
+    -- nnoremap <buffer> <expr><c-f> lsp#scroll(+4)
+    -- nnoremap <buffer> <expr><c-d> lsp#scroll(-4)
+    },
+  t = {
+    name = "Test",
+      t = { "<cmd>TestNearest<CR>", "Test Nearest" },
+      T = { "<cmd>TestFile<CR>", "Test File" },
+      a = { "<cmd>TestSuite<CR>", "Test Suite" },
+      l = { "<cmd>TestLast<CR>", "Test Last" },
+      g = { "<cmd>TestVisit<CR>", "Test Visit" },
+    },
+  G = {
+    name = "Git",
+      d = { "<cmd>Gdiffsplit<CR>", "Git Diff" },
+      b = { "<cmd>Git blame<CR>", "Git Blame" },
+      c = { "<cmd>Git commit<CR>", "Git Commit" },
+      p = { "<cmd>Git push<CR>", "Git Push" },
+      P = { "<cmd>Git pull<CR>", "Git Pull" },
+      s = { "<cmd>Git status<CR>", "Git Status" },
+
+      l = { "<cmd>Git log<CR>", "Git Log" },
+      h = { "<cmd>Git hist<CR>", "Git history" },
+      t = { "<cmd>Git stash<CR>", "Git Stash" },
+      T = { "<cmd>Git stash pop<CR>", "Git Stash Pop" },
+      m = { "<cmd>Git mergetool<CR>", "Git Merge Tool" },
+      M = { "<cmd>Git mergetool --tool=diffmerge<CR>", "Git Merge Tool Diffmerge" },
+      f = { "<cmd>Git fetch<CR>", "Git Fetch" },
+      F = { "<cmd>Git fetch --all<CR>", "Git Fetch All" },
+      A = { "<cmd>Git add -A<CR>", "Git Add All" },
+      C = { "<cmd>Git checkout", "Git Checkout" },
+    },
+  }
+)
 EOF
