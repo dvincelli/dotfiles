@@ -1,10 +1,7 @@
+" Enable for debugging...
 "profile start ~/vim-profile.log
 
-"set re=0
-
-"if &compatible
-"   set nocompatible     " we don't need vi compatibility, give us all of vim
-"endif
+set nocompatible     " we don't need vi compatibility, give us all of vim
 
 set runtimepath+=~/.data/cartridges/vim
 
@@ -28,7 +25,7 @@ set number		" line numbers
 set hlsearch		" highlight search matches
 
 " <esc> also turns off highlighted matches
-"nnoremap <esc> <esc>:nohl<cr>
+nnoremap <esc> <esc>:nohl<cr>
 set incsearch		" incremental search (jump to partial match)
 
 set smartcase		" if I put case variation in my search, it's cause I care
@@ -40,6 +37,10 @@ set sidescrolloff=5	" keep at least this many columns left/right of cursor
 " use rg instead of grep
 set grepprg=rg\ --vimgrep " ripgrep is smarter and faster
 set grepformat^=%f:%l:%c:%m
+
+let mapleader=','
+let g:mapleader = ","
+let g:maplocalleader = ","
 
 " this allows me to define rg as a lowercase command and it won't get
 " expanded mid-word
@@ -69,25 +70,25 @@ set mouse=a		" enable mouse in all modes
 " Tell vim to remember certain things when we exit
 " '50  :  marks will be remembered for up to 50 previously edited files
 " "100 :  will save up to 100 lines for each register
-" :20  :  up to 20 lines of command-line history will be remembered
+" :500  :  up to 500 lines of command-line history will be remembered
 " %    :  saves and restores the buffer list
 " n... :  where to save the viminfo files
-set viminfo='50,\"100,:20,%,n~/.viminfo
+set viminfo='50,\"100,:500,%,n~/.viminfo
 
-" completion
-set wildmenu		" enable wildmenu
-set wildmode=list:longest,full	" match order
-set wildchar=<tab>	" complete on tab
-set wildignore+=.git,*.pyc,*.egg,./data/**,./build/**,./dist/**,./*.egg-info/**,./*.egg/,data/*,build/*,dist/*,*.egg-info,*.egg/**
-
-" change default auto-complete menu colors
-highlight Pmenu ctermfg=1 ctermbg=4 guibg=grey30
+"" completion
+"set wildmenu		" enable wildmenu
+"set wildmode=list:longest,full	" match order
+"set wildchar=<tab>	" complete on tab
+"set wildignore+=.git,*.pyc,*.egg,./data/**,./build/**,./dist/**,./*.egg-info/**,./*.egg/,data/*,build/*,dist/*,*.egg-info,*.egg/**
+"
+"" change default auto-complete menu colors
+"highlight Pmenu ctermfg=1 ctermbg=4 guibg=grey30
 
 " do not complete on these
 set suffixes+=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.cmi,.cmo,.swo,.pyc,TAGS
 
 " personal project hierarchy
-set path=~/src/github.com/Shopify/**
+set path=~/src/**
 
 " file explorer preferences
 let g:netrw_list_hide = ".*\.pyc$,^darcs.*,.*patch$,_darcs,*.egg-info,\.svn,\.hg,\.git,\.swp,\.swo"
@@ -97,70 +98,6 @@ let g:netrw_use_noswf = 1
 syntax on
 filetype plugin on
 filetype indent on
-
-if has("autocmd")
-	" sql
-	au! BufRead,BufNewFile *.sql setfiletype mysql
-	au BufWinEnter *.sql setfiletype mysql
-	au! BufRead,BufNewFile /tmp/sql* setfiletype mysql
-	au FileType mysql set si et ts=4 sw=4
-
-	" mako templates
-	au BufWinEnter *.mtpl setfiletype htmlmako
-	au! BufRead,BufNewFile *.mako setfiletype htmlmako
-	au BufWinEnter *.mako setfiletype htmlmako
-
-	" twig templates
-	au! BufRead,BufNewFile *.twig setfiletype htmljinja
-	au BufWinEnter *.twig setfiletype htmljinja
-
-	" jinja templates
-	au! BufRead,BufNewFile *.jinja setfiletype htmljinja
-	au BufWinEnter *.jinja setfiletype htmljinja
-	au! BufRead,BufNewFile *.html setfiletype htmljinja
-	au BufWinEnter *.html setfiletype htmljinja
-	autocmd FileType htmljinja set formatoptions+=tl
-	autocmd FileType htmljinja set noai nosi et sw=4 ts=4
-
-	" for Perl programming, have things in braces indenting themselves:
-	autocmd FileType perl set smartindent
-
-	" for CSS, also have things in braces indented:
-	autocmd FileType css set smartindent
-
-	" For PHP we use 8 tabstops and real tab characters
-	autocmd FileType php set noexpandtab tabstop=8
-
-	" in makefiles, don't expand tabs to spaces, since actual tab characters are
-	" needed, and have indentation at 8 chars to be sure that all indents are tabs
-	" (despite the mappings later):
-	autocmd FileType make set noexpandtab shiftwidth=8
-
-	" for Python
-	autocmd FileType python setlocal tabstop=4 shiftwidth=4 expandtab shiftround softtabstop=4 noautoindent foldenable smartindent cinwords=if,elif,else,for,while,with,try,except,finally,def,class
-	"autocmd BufNewFile,BufRead *.py compiler pytest
-	"autocmd FileType python setlocal omnifunc=pysmell#Complete
-	"autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
-
-	" commit messages wrap at 76 chars
-	au FileType svn setlocal spell tw=76
-	au FileType git setlocal spell tw=76
-
-	" email wrap-around at 72 chars
-	au BufRead /tmp/mutt-* set tw=72
-
-	" JavaScript/TypeScript
-	autocmd FileType javascript setlocal tabstop=2 shiftwidth=2 expandtab shiftround softtabstop=2 smartindent
-	autocmd FileType javascriptreact setlocal tabstop=2 shiftwidth=2 expandtab shiftround softtabstop=2 smartindent
-	autocmd FileType typescript setlocal tabstop=2 shiftwidth=2 expandtab shiftround softtabstop=2 smartindent
-	autocmd FileType typescriptreact setlocal tabstop=2 shiftwidth=2 expandtab shiftround softtabstop=2 smartindent
-
-	au BufEnter *.{js,jsx,ts,tsx} :syntax sync fromstart
-	au BufLeave *.{js,jsx,ts,tsx} :syntax sync clear
-
-	autocmd FileType xml setlocal ts=2 sw=2 et shiftround sts=2 si
-	autocmd FileType xml setlocal ts=2 sw=2 et shiftround sts=2 si
-endif
 
 " hightlight espaces at end of lines
 highlight WhitespaceEOL ctermbg=red guibg=red
@@ -173,13 +110,12 @@ match RedundantSpaces /\s\+$\| \+\ze\t/
 highlight OverLength ctermbg=darkred ctermfg=white guibg=#FFD9D9
 match OverLength /\%81v.*/
 
-let mapleader=','
-
 " show trailing spaces, tabs
 set list
 set listchars=tab:_\ ,trail:_
 " Shortcut to rapidly toggle `set list`
-nmap <leader>s :set list!<CR>
+nmap <leader><esc> :set list!<CR>
+    ,   
 
 " Plug
 filetype off
@@ -190,14 +126,11 @@ Plug 'rhysd/committia.vim'
 " git diff status in gutter
 Plug 'mhinz/vim-signify'
 
-" inkpot theme
-Plug 'ciaranm/inkpot'
-
 " Better html handling
 "Plug 'othree/html5.vim'
 
-Plug 'tpope/vim-fugitive'
-Plug 'ctrlpvim/ctrlp.vim'
+" we have <leader>f for fzf now, disable ctrl-p
+"Plug 'ctrlpvim/ctrlp.vim'
 
 "Plug 'Lokaltog/vim-powerline'
 
@@ -207,8 +140,6 @@ Plug 'vim-scripts/AnsiEsc.vim'
 " edit one file with root privleges without running the whole session that way
 Plug 'vim-scripts/sudo.vim'
 
-" CTRL-X / to close a tag
-Plug 'tpope/vim-ragtag'
 
 " ,w into ProgrammingLanguage prog_lang progLang words
 Plug 'vim-scripts/camelcasemotion'
@@ -242,7 +173,7 @@ Plug 'prettier/vim-prettier' , {
 "Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 
-" colorschemes
+" colorschemes / themes
 Plug 'wesgibbs/vim-irblack'
 Plug 'tpope/vim-vividchalk'
 Plug 'ciaranm/inkpot'
@@ -281,11 +212,40 @@ Plug  'folke/which-key.nvim'
 
 Plug 'nvim-tree/nvim-web-devicons'
 
+" fix . repeat on map'd commands
+Plug 'tpope/vim-repeat'
+" fix CTRL-A/CTRL-X on dates
+Plug 'tpope/vim-speeddating'
+" gcc to comment out a line (and gc to comment out the target of a motion)
+Plug 'tpope/vim-commentary'
+" snake_case to camelCase and back
+Plug 'tpope/vim-abolish'
+Plug 'tpope/vim-rsi'
+" CTRL-X / to close a tag
+Plug 'tpope/vim-ragtag'
+Plug 'tpope/vim-eunuch'
+Plug 'tpope/vim-sleuth'
+Plug 'tpope/vim-bundler'
+Plug 'tpope/vim-endwise'
+" git
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-git'
+Plug 'tpope/vim-rhubarb'
+Plug 'tpope/vim-dispatch'
+Plug 'tpope/vim-projectionist'
+Plug 'tpope/vim-obsession'
+Plug 'tpope/vim-vinegar'
+" modern take on dbext
+Plug 'tpope/vim-dadbod'
+Plug 'tpope/vim-dadbod-completion'
+Plug 'tpope/vim-scriptease'
+Plug 'tpope/vim-sleuth'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-vinegar'
+
 call plug#end()
 
 filetype plugin indent on
-
-let mapleader=','
 
 " auto formatters
 let g:rustfmt_autosave = 1
@@ -295,32 +255,16 @@ let g:rustfmt_fail_silently = 0
 let g:prettier#autoformat = 1
 let g:prettier#autoformat_require_pragma = 0
 
-" tab helpers
-nmap <leader>[ :tabprev<CR>
-nmap <leader>] :tabnext<CR>
-nmap <leader>T :tabnew<CR>
+" grep helpers
+nmap <leader>s :grep! <cword><cr>:cwindow<cr>
+nmap <leader>S :grepadd! <cword><cr>:cwindow<cr>
 
-" buffer helpers
-nmap <leader>h :prev<cr>
-nmap <leader>l :next<cr>
-nmap <leader>b :buffers<cr>
-
-" cwindow settings and helpers
-cwindow 30	" size of error window
-nmap <leader>c :cwindow<cr>
-nmap <leader>k :cprev<cr>
-nmap <leader>j :cnext<cr>
-
-" grep/ack helpers
-nmap <leader>G :grep! <cword><cr>:cwindow<cr>
-nmap <leader>g :grepadd! <cword><cr>:cwindow<cr>
-
-" set inkpot colorscheme if 256 colors are available
+" set colorscheme if 256 colors are available
 if (&t_Co >= 256)
 	if exists("syntax_on")
 		syntax reset
 	endif
-	colorscheme vividchalk
+	colorscheme sonokai
 endif
 
 set laststatus=2 " make the last line where the status is two lines deep so you can see status always
@@ -356,9 +300,9 @@ function! s:on_lsp_buffer_enabled() abort
     nmap <buffer> gr <plug>(lsp-references)
     nmap <buffer> gi <plug>(lsp-implementation)
     nmap <buffer> gt <plug>(lsp-type-definition)
-    nmap <buffer> <leader>rn <plug>(lsp-rename)
-    nmap <buffer> [g <plug>(lsp-previous-diagnostic)
-    nmap <buffer> ]g <plug>(lsp-next-diagnostic)
+    nmap <buffer> rn <plug>(lsp-rename)
+    nmap <buffer> gj <plug>(lsp-previous-diagnostic)
+    nmap <buffer> gk <plug>(lsp-next-diagnostic)
     nmap <buffer> K <plug>(lsp-hover)
 
     let g:lsp_format_sync_timeout = 1000
@@ -374,19 +318,9 @@ augroup END
 
 " FZF
 let $FZF_DEFAULT_COMMAND = 'rg --files --hidden --follow --glob "!.git/*" --max-filesize 1M'
-nnoremap <leader>f :FZF<CR>
-
-" MRU
-nnoremap <leader>m :FZFMru<CR>
 
 " vim-test
-nmap <silent> <leader>t :TestNearest<CR>
-nmap <silent> <leader>T :TestFile<CR>
-nmap <silent> <leader>a :TestSuite<CR>
-nmap <silent> <leader>l :TestLast<CR>
-nmap <silent> <leader>g :TestVisit<CR>
-
-set timeoutlen=300
+set timeoutlen=500
 set timeout
 
 " ChatGPT, WhicKey
@@ -395,7 +329,8 @@ lua <<EOF
 require("chatgpt").setup()
 
 local wk = require("which-key")
-wk.setup()
+wk.setup(
+)
 
 wk.register({
   c = {
@@ -425,40 +360,91 @@ wk.register({
       t = { "<cmd>lua vim.lsp.buf.type_definition()<CR>", "Go to type definition" },
       R = { "<cmd>lua vim.lsp.buf.rename()<CR>", "Rename symbol" },
       s = { "<cmd>lua vim.lsp.buf.document_symbol()<CR>", "Document symbols" },
-      -- S = { "<cmd>lua vim.lsp.buf.workspace_symbol_search()<CR>", "Workspace symbol search" },
+    -- S = { "<cmd>lua vim.lsp.buf.workspace_symbol_search()<CR>", "Workspace symbol search" },
     -- nmap <buffer> [g <plug>(lsp-previous-diagnostic)
     -- nmap <buffer> ]g <plug>(lsp-next-diagnostic)
-    -- nnoremap <buffer> <expr><c-f> lsp#scroll(+4)
-    -- nnoremap <buffer> <expr><c-d> lsp#scroll(-4)
     },
-  t = {
+ t = {
     name = "Test",
       t = { "<cmd>TestNearest<CR>", "Test Nearest" },
-      T = { "<cmd>TestFile<CR>", "Test File" },
-      a = { "<cmd>TestSuite<CR>", "Test Suite" },
+      f = { "<cmd>TestFile<CR>", "Test File" },
+      s = { "<cmd>TestSuite<CR>", "Test Suite" },
       l = { "<cmd>TestLast<CR>", "Test Last" },
       g = { "<cmd>TestVisit<CR>", "Test Visit" },
     },
-  G = {
+  g = {
     name = "Git",
       d = { "<cmd>Gdiffsplit<CR>", "Git Diff" },
       b = { "<cmd>Git blame<CR>", "Git Blame" },
       c = { "<cmd>Git commit<CR>", "Git Commit" },
-      p = { "<cmd>Git push<CR>", "Git Push" },
+      p = { "<cmd>Git push --force-with-lease --force-if-includes<CR>", "Git Push" },
       P = { "<cmd>Git pull<CR>", "Git Pull" },
       s = { "<cmd>Git status<CR>", "Git Status" },
-
+      r = {" <cmd>Git rebase -i origin/main<CR>", "Git rebase" }, -- will this work?
       l = { "<cmd>Git log<CR>", "Git Log" },
       h = { "<cmd>Git hist<CR>", "Git history" },
       t = { "<cmd>Git stash<CR>", "Git Stash" },
       T = { "<cmd>Git stash pop<CR>", "Git Stash Pop" },
-      m = { "<cmd>Git mergetool<CR>", "Git Merge Tool" },
-      M = { "<cmd>Git mergetool --tool=diffmerge<CR>", "Git Merge Tool Diffmerge" },
       f = { "<cmd>Git fetch<CR>", "Git Fetch" },
       F = { "<cmd>Git fetch --all<CR>", "Git Fetch All" },
       A = { "<cmd>Git add -A<CR>", "Git Add All" },
       C = { "<cmd>Git checkout", "Git Checkout" },
     },
+  -- fzf
+  f = { "<cmd>FZF<CR>", "Fuzzy Open File" },
+  m = { "<cmd>FZFMru<CR>", "Fuzzy Open MRU" },
+  -- buffers
+  b = {
+    name = "Buffers",
+     ["]"] = { "<cmd>bn<CR>", "Next Buffer" },
+     ["["] = { "<cmd>bp<CR>", "Previous Buffer" },
+     ["d"] = { "<cmd>bd<CR>", "Delete Buffer" },
+     ["D"] = { "<cmd>bufdo bd<CR>", "Delete All Buffers" },
+     ["l"] = { "<cmd>ls<CR>", "List Buffers" },
+  },
+  -- tabs
+  t = {
+    name = "Tabs",
+    ["["] = { "<cmd>tabprev<CR>", "Previous Tab" },
+    ["]"] = { "<cmd>tabnext<CR>", "Next Tab" },
+    ["c"] = { "<cmd>tabclose<CR>", "Close Tab" },
+    ["C"] = { "<cmd>tabonly<CR>", "Close All Tabs" },
+    ["l"] = { "<cmd>tabs<CR>", "List Tabs" },
+    ["n"] = { "<cmd>tabnew<CR>", "New Tab" },
+  },
+  -- cwindow
+  cw = {
+    name = "Cwindow (QuickFix)",
+    ["["] = { "<cmd>cprev<CR>", "Previous Error" },
+    ["]"] = { "<cmd>cnext<CR>", "Next Error" },
+    ["o"] = { "<cmd>copen<CR>", "Open Cwindow" },
+    ["c"] = { "<cmd>cclose<CR>", "Close Cwindow" },
+    ["w"] = { "<cmd>cwindow<CR>", "Cwindow Size" },
+  },
+  -- grep
+  s = {
+    name = "Search",
+    ["s"] = { "<cmd>grep<CR>", "Search for symbol" },
+    ["S"] = { "<cmd>grepadd<CR>", "Search for symbol, add to results" },
+    ["["] = { "<cmd>cprev<CR>", "Previous Match" },
+    ["]"] = { "<cmd>cnext<CR>", "Next Match" },
+    ["o"] = { "<cmd>copen<CR>", "Open Cwindow" },
+    ["c"] = { "<cmd>cclose<CR>", "Close Cwindow" },
+    ["w"] = { "<cmd>cwindow<CR>", "Cwindow Size" },
+  },
+  ["]"] = { "<cmd>cnext<CR>", "Next quickfix entry" },
+  ["["] = { "<cmd>cprev<CR>", "Previous quickfix entry" },
+  prefix = "<leader>",
   }
 )
 EOF
+
+" ragtag
+inoremap <M-o>       <Esc>o
+inoremap <C-j>       <Down>
+let g:ragtag_global_maps = 1
+
+" Conditional include of ~/.vimrc.local
+if filereadable(expand("~/.vimrc.local"))
+  source ~/.vimrc.local	
+endif
