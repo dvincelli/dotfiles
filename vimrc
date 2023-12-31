@@ -290,10 +290,16 @@ nmap <leader>S :grepadd! <cword><cr>:cwindow<cr>
 
 " set colorscheme if 256 colors are available
 if (&t_Co >= 256)
-	if exists("syntax_on")
-		syntax reset
-	endif
-	colorscheme sonokai
+  if exists("syntax_on")
+    syntax reset
+  endif
+  silent! colorscheme sonokai
+  " If not installed, display warning message
+  if v:errmsg != ''
+    echohl WarningMsg
+    echom "Sonokai colorscheme not found. Please install the plugin or change the colorscheme."
+    echohl None
+  endif
 endif
 
 set laststatus=2 " make the last line where the status is two lines deep so you can see status always
