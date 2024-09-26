@@ -3,6 +3,8 @@ if [ -z "$PS1" ]; then
        return
 fi
 
+export TERM=linux
+
 [ -t 0 ] && stty -iexten # if stdin is open disable xon/xoff flow control (^Q, ^S)
 
 PATH="/opt/pkg/bin/bash:$HOME/bin:$PATH"
@@ -151,3 +153,7 @@ export ROC_ENABLE_PRE_VEGA=1
 alias vim=nvim
 alias v=nvim
 alias nv=nvim
+
+if [ -n "$(which rbenv)" ]; then
+    eval "$(rbenv init -)"
+fi
