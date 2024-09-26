@@ -126,7 +126,6 @@ set list
 set listchars=tab:_\ ,trail:_
 " Shortcut to rapidly toggle `set list`
 nmap <leader><esc> :set list!<CR>
-    ,   
 
 " Plug
 filetype off
@@ -246,7 +245,6 @@ Plug 'tpope/vim-rhubarb'
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-projectionist'
 Plug 'tpope/vim-obsession'
-Plug 'tpope/vim-vinegar'
 " modern take on dbext
 Plug 'tpope/vim-dadbod'
 "Plug 'tpope/vim-dadbod-completion'
@@ -270,6 +268,10 @@ Plug 'astral-sh/ruff-lsp'
 
 " vim tmux navigator
 Plug 'christoomey/vim-tmux-navigator'
+
+Plug 'neovim/nvim-lspconfig'
+
+Plug 'mrcjkb/rustaceanvim'
 
 call plug#end()
 
@@ -470,6 +472,7 @@ wk.register({
   prefix = "<leader>",
   }
 )
+
 -- Configure `ruff-lsp`.
 -- See: https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#ruff_lsp
 -- For the default config, along with instructions on how to customize the settings
@@ -482,6 +485,23 @@ wk.register({
 --     }
 --   }
 -- }
+
+local lspconfig = require("lspconfig")
+
+-- configure python server
+lspconfig["pylsp"].setup({
+ capabilities = capabilities,
+ settings = {
+   pylsp = {
+     plugins = {
+       pylint = { enabled = "false" },
+       pyflakes = { enabled = "false" },
+       pycodestyle = { enabled = "false" },
+     }
+   }
+ },
+ on_attach = on_attach,
+})
 EOF
 
 " ragtag
