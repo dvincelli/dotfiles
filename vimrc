@@ -251,7 +251,7 @@ Plug 'tpope/vim-obsession'
 Plug 'tpope/vim-vinegar'
 " modern take on dbext
 Plug 'tpope/vim-dadbod'
-Plug 'tpope/vim-dadbod-completion'
+"Plug 'tpope/vim-dadbod-completion'
 Plug 'tpope/vim-scriptease'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-surround'
@@ -270,6 +270,9 @@ Plug 'editorconfig/editorconfig-vim'
 " ruff lsp
 Plug 'astral-sh/ruff-lsp'
 
+" vim tmux navigator
+Plug 'christoomey/vim-tmux-navigator'
+
 call plug#end()
 
 filetype plugin indent on
@@ -281,6 +284,7 @@ let g:rustfmt_fail_silently = 0
 
 let g:prettier#autoformat = 1
 let g:prettier#autoformat_require_pragma = 0
+
 
 " grep helpers
 nmap <leader>s :grep! <cword><cr>:cwindow<cr>
