@@ -74,12 +74,14 @@ set mouse=a		" enable mouse in all modes
 " %    :  saves and restores the buffer list
 " n... :  where to save the viminfo files
 "
-if has('nvim')
+if !has('nvim')
   set viminfo='50,\"100,:500,%,n~/.viminfo
 else
-  " TODO do the same for shada
   set shada='50,\"100,:500,%,n~/.viminfo
+  autocmd BufRead * autocmd FileType <buffer> ++once                   
+        \ if &ft !~# 'commit\|rebase' && line("'\"") > 1 && line("'\"") <= line("$") | exe 'normal! g`"' | endif
 endif
+
 
 nnoremap y "+y
 vnoremap y "+y

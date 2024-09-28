@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if ! command -v rclone &> /dev/null
+then
+  if [ "$(uname)" == "Darwin" ]; then
+    echo "rclone command not found. Installing rclone from brew"
+    brew install rclone
+  elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    apt install rclone
+  fi
+fi
+
+# Authenticate rclone with your Google Drive account
+rclone config create gdrive drive
+
