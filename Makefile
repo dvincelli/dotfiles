@@ -26,7 +26,7 @@ nvim:
 	mkdir -p ~/.config/nvim
 	curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
 		https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-	ln -sf $(PWD)/vimrc ~/.config/nvim/init.vim
+	ln -sf $(PWD)/nvim/init.lua ~/.config/nvim/init.lua
 
 gitprompt:
 	curl -L -s https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh > ~/.git-prompt.sh
