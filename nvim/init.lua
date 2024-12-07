@@ -20,7 +20,6 @@ vim.o.errorbells = false -- Disable error bells
 -- History
 vim.o.history = 1000 -- Keep command history
 
-
 -- Backspace
 vim.o.backspace = "indent,eol,start" -- Enable flexible backspace behavior
 
@@ -83,6 +82,13 @@ Plug 'nvim-tree/nvim-web-devicons'
 Plug 'akinsho/toggleterm.nvim'
 Plug 'glepnir/lspsaga.nvim'
 Plug 'ray-x/lsp_signature.nvim'
+Plug 'folke/which-key.nvim'
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'junegunn/fzf', { 'do': './install --all' }
+Plug 'yegappan/mru'
+Plug 'mhinz/vim-signify'
+Plug 'tpope/vim-fugitive'
+Plug 'rhysd/committia.vim'
 
 " ChatGPT integration
 Plug 'nvim-lua/plenary.nvim'
@@ -104,8 +110,8 @@ if plug_installed then
     vim.cmd('PlugInstall --sync | q')
 end
 
+vim.g.FZF_DEFAULT_COMMAND = 'rg --files --hidden --follow --glob "!.git/*" --max-filesize 1M'
 
--- t_Co is a string, convert to int first:
 if vim.g.syntax_on then
     vim.cmd("syntax reset")
 end
@@ -127,13 +133,9 @@ vim.o.expandtab = true
 vim.o.splitbelow = true
 vim.o.splitright = true
 
+vim.o.signcolumn = "yes"
+
 -- Enable system clipboard
--- vim.cmd([[
--- if has('clipboard')
---     set clipboard+=unnamedplus
--- endif
--- ]])
--- Clipboard
 vim.opt.clipboard:append("unnamedplus") -- Share clipboard with system
 
 -- Keybindings for clipboard operations (optional)
@@ -226,14 +228,6 @@ require('nvim-treesitter.configs').setup({
     incremental_selection = { enable = true },
     textobjects = { enable = true },
 })
-
--- Auto-install Treesitter parsers
-local parsers = require('nvim-treesitter.parsers').get_parser_configs()
-for parser, _ in pairs(parsers) do
-    if not parsers[parser].is_installed then
-        -- vim.cmd('TSInstall ' .. parser)
-    end
-end
 
 -- Completion
 cmp.setup({
@@ -329,21 +323,20 @@ vim.api.nvim_set_keymap('n', '<leader>v', ':vspl<CR>:Ex<CR>', { noremap = true, 
 vim.api.nvim_set_keymap('n', '<leader>-', ':sp<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>\'', ':vsp<CR>', { noremap = true, silent = true })
 
-
 -- Treesitter Playground setup
-require("nvim-treesitter.configs").setup({
-    playground = {
-        enable = true,
-        updatetime = 25, -- Debounced time for highlighting nodes (in ms)
-        persist_queries = false, -- Whether the query persists across vim sessions
-    },
-})
+-- require("nvim-treesitter.configs").setup({
+--     playground = {
+--         enable = true,
+--         updatetime = 25, -- Debounced time for highlighting nodes (in ms)
+--         persist_queries = false, -- Whether the query persists across vim sessions
+--     },
+-- })
+-- 
+-- vim.api.nvim_set_keymap('n', '<leader>t', ':TSPlaygroundToggle<CR>', { noremap = true, silent = true })
 
-vim.api.nvim_set_keymap('n', '<leader>t', ':TSPlaygroundToggle<CR>', { noremap = true, silent = true })
-
--- If there is a poetry.lock file, use the virtual environment
--- defined in the Poetry environment
+-- Python LSP setup
 local python_path = "python"
+
 local poetry_lock = vim.fn.glob("poetry.lock")
 if vim.fn.empty(poetry_lock) == 0 then
     -- Get the Poetry environment path
@@ -380,3 +373,116 @@ lspconfig.pyright.setup({
         },
     },
 })
+
+-- Rust LSP Setup
+lspconfig.rust_analyzer.setup({})
+
+
+wk = require("which-key")
+wk.setup()
+
+wk.register({
+  c = {
+    name = "ChatGPT",
+      c = { "<cmd>ChatGPT<CR>", "ChatGPT" },
+      e = { "<cmd>ChatGPTEditWithInstruction<CR>", "Edit with instruction", mode = { "n", "v" } },
+      g = { "<cmd>ChatGPTRun grammar_correction<CR>", "Grammar Correction", mode = { "n", "v" } },
+      t = { "<cmd>ChatGPTRun translate<CR>", "Translate", mode = { "n", "v" } },
+      k = { "<cmd>ChatGPTRun keywords<CR>", "Keywords", mode = { "n", "v" } },
+      d = { "<cmd>ChatGPTRun docstring<CR>", "Docstring", mode = { "n", "v" } },
+      a = { "<cmd>ChatGPTRun add_tests<CR>", "Add Tests", mode = { "n", "v" } },
+      o = { "<cmd>ChatGPTRun optimize_code<CR>", "Optimize Code", mode = { "n", "v" } },
+      s = { "<cmd>ChatGPTRun summarize<CR>", "Summarize", mode = { "n", "v" } },
+      f = { "<cmd>ChatGPTRun fix_bugs<CR>", "Fix Bugs", mode = { "n", "v" } },
+      x = { "<cmd>ChatGPTRun explain_code<CR>", "Explain Code", mode = { "n", "v" } },
+      r = { "<cmd>ChatGPTRun roxygen_edit<CR>", "Roxygen Edit", mode = { "n", "v" } },
+      l = { "<cmd>ChatGPTRun code_readability_analysis<CR>", "Code Readability Analysis", mode = { "n", "v" } },
+    },
+  l = {
+    name = "LSP",
+      a = { "<cmd>lua vim.lsp.buf.code_action()<CR>", "Code action" },
+      d = { "<cmd>lua vim.lsp.buf.definition()<CR>", "Go to definition" },
+      f = { "<cmd>lua vim.lsp.buf.formatting()<CR>", "Format code" },
+      h = { "<cmd>lua vim.lsp.buf.hover()<CR>", "Show hover information" },
+      i = { "<cmd>lua vim.lsp.buf.implementation()<CR>", "Go to implementation" },
+      r = { "<cmd>lua vim.lsp.buf.references()<CR>", "Find references" },
+      t = { "<cmd>lua vim.lsp.buf.type_definition()<CR>", "Go to type definition" },
+      R = { "<cmd>lua vim.lsp.buf.rename()<CR>", "Rename symbol" },
+      s = { "<cmd>lua vim.lsp.buf.document_symbol()<CR>", "Document symbols" },
+      S = { "<cmd>lua vim.lsp.buf.workspace_symbol_search()<CR>", "Workspace symbol search" },
+    -- nmap <buffer> [d <plug>(lsp-previous-diagnostic)
+    -- nmap <buffer> ]d <plug>(lsp-next-diagnostic)
+    },
+  t = {
+   name = "Test",
+     t = { "<cmd>TestNearest<CR>", "Test Nearest" },
+     f = { "<cmd>TestFile<CR>", "Test File" },
+     s = { "<cmd>TestSuite<CR>", "Test Suite" },
+     l = { "<cmd>TestLast<CR>", "Test Last" },
+     g = { "<cmd>TestVisit<CR>", "Test Visit" },
+   },
+  g = {
+    name = "Git",
+      d = { "<cmd>Gdiffsplit<CR>", "Git Diff" },
+      b = { "<cmd>Git blame<CR>", "Git Blame" },
+      c = { "<cmd>Git commit<CR>", "Git Commit" },
+      p = { "<cmd>Git push --force-with-lease --force-if-includes<CR>", "Git Push" },
+      P = { "<cmd>Git pull<CR>", "Git Pull" },
+      s = { "<cmd>Git status<CR>", "Git Status" },
+      r = {" <cmd>Git rebase -i origin/main<CR>", "Git rebase" }, -- will this work?
+      l = { "<cmd>Git log<CR>", "Git Log" },
+      h = { "<cmd>Git hist<CR>", "Git history" },
+      t = { "<cmd>Git stash<CR>", "Git Stash" },
+      T = { "<cmd>Git stash pop<CR>", "Git Stash Pop" },
+      f = { "<cmd>Git fetch<CR>", "Git Fetch" },
+      F = { "<cmd>Git fetch --all<CR>", "Git Fetch All" },
+      A = { "<cmd>Git add -A<CR>", "Git Add All" },
+      C = { "<cmd>Git checkout", "Git Checkout" },
+    },
+  -- fzf
+  f = { "<cmd>FZF<CR>", "Fuzzy Open File" },
+  m = { "<cmd>FZFMru<CR>", "Fuzzy Open MRU" },
+  -- buffers
+  b = {
+    name = "Buffers",
+     ["]"] = { "<cmd>bn<CR>", "Next Buffer" },
+     ["["] = { "<cmd>bp<CR>", "Previous Buffer" },
+     ["d"] = { "<cmd>bd<CR>", "Delete Buffer" },
+     ["D"] = { "<cmd>bufdo bd<CR>", "Delete All Buffers" },
+     ["l"] = { "<cmd>ls<CR>", "List Buffers" },
+  },
+  -- tabs
+  t = {
+    name = "Tabs",
+    ["["] = { "<cmd>tabprev<CR>", "Previous Tab" },
+    ["]"] = { "<cmd>tabnext<CR>", "Next Tab" },
+    ["c"] = { "<cmd>tabclose<CR>", "Close Tab" },
+    ["C"] = { "<cmd>tabonly<CR>", "Close All Tabs" },
+    ["l"] = { "<cmd>tabs<CR>", "List Tabs" },
+    ["n"] = { "<cmd>tabnew<CR>", "New Tab" },
+  },
+  -- cwindow
+  w = {
+    name = "Cwindow (QuickFix)",
+    ["["] = { "<cmd>cprev<CR>", "Previous Error" },
+    ["]"] = { "<cmd>cnext<CR>", "Next Error" },
+    ["o"] = { "<cmd>copen<CR>", "Open Cwindow" },
+    ["c"] = { "<cmd>cclose<CR>", "Close Cwindow" },
+    ["w"] = { "<cmd>cwindow<CR>", "Cwindow Size" },
+  },
+  -- grep
+  s = {
+    name = "Search",
+    ["s"] = { "<cmd>grep<CR>", "Search for symbol" },
+    ["S"] = { "<cmd>grepadd<CR>", "Search for symbol, add to results" },
+    ["["] = { "<cmd>cprev<CR>", "Previous Match" },
+    ["]"] = { "<cmd>cnext<CR>", "Next Match" },
+    ["o"] = { "<cmd>copen<CR>", "Open Cwindow" },
+    ["c"] = { "<cmd>cclose<CR>", "Close Cwindow" },
+    ["w"] = { "<cmd>cwindow<CR>", "Cwindow Size" },
+  },
+  ["]"] = { "<cmd>cnext<CR>", "Next quickfix entry" },
+  ["["] = { "<cmd>cprev<CR>", "Previous quickfix entry" },
+  prefix = "<leader>",
+  }
+)
