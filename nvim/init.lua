@@ -29,7 +29,6 @@ vim.o.hlsearch = true -- Highlight search matches
 vim.o.incsearch = true -- Enable incremental search
 vim.o.smartcase = true -- Case-sensitive search if uppercase letters are used
 vim.o.showmatch = true -- Highlight matching brackets
-vim.api.nvim_set_keymap("n", "<esc>", "<esc>:nohl<cr>", { noremap = true, silent = true }) -- Clear highlights with <esc>
 
 -- Scrolling
 vim.o.scrolloff = 8 -- Keep 8 lines visible above/below cursor
@@ -64,7 +63,6 @@ vim.cmd([[
 call plug#begin('~/.vim/plugged')
 
 " Plugin manager
-Plug 'nvim-telescope/telescope.nvim'
 Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-nvim-lsp'
@@ -91,9 +89,10 @@ Plug 'tpope/vim-fugitive'
 Plug 'rhysd/committia.vim'
 
 " ChatGPT integration
-Plug 'nvim-lua/plenary.nvim'
 Plug 'jackMort/ChatGPT.nvim', { 'do': 'pip install -r requirements.txt' }
 Plug 'MunifTanjim/nui.nvim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
 
 " GitHub Copilot
 Plug 'github/copilot.vim'
@@ -138,28 +137,63 @@ vim.o.signcolumn = "yes"
 -- Enable system clipboard
 vim.opt.clipboard:append("unnamedplus") -- Share clipboard with system
 
--- Keybindings for clipboard operations (optional)
-vim.api.nvim_set_keymap('v', '<leader>y', '"+y', { noremap = true, silent = true }) -- Copy to system clipboard
-vim.api.nvim_set_keymap('v', '<leader>p', '"+p', { noremap = true, silent = true }) -- Paste from system clipboard
-vim.api.nvim_set_keymap('n', '<leader>P', '"+P', { noremap = true, silent = true }) -- Paste before in normal mode
-
 -- Key mappings
-vim.api.nvim_set_keymap('n', '<C-n>', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Leader>f', ':Telescope find_files<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Leader>g', ':Telescope live_grep<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<C-t>', ':ToggleTerm<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<Leader>t', ':ToggleTerm<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Leader>r', ':TestNearest<CR>', { noremap = true, silent = true })
+
+-- LSP Code Actions
 vim.api.nvim_set_keymap('n', '<Leader>a', ':Lspsaga code_action<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<Leader>c', ':ChatGPT<CR>', { noremap = true, silent = true }) -- Open ChatGPT
+vim.api.nvim_set_keymap('v', '<Leader>a', ':Lspsaga range_code_action<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<Leader>o', ':Lspsaga outline<CR>', { noremap = true, silent = true })
+
+-- ChatGPT
+vim.api.nvim_set_keymap('n', '<Leader>c', ':ChatGPT<CR>', { noremap = true, silent = true })
+
+-- Clear highlights
+vim.api.nvim_set_keymap("n", "<esc>", "<esc>:nohl<cr>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<C-c>", "<esc>:close<cr>", { noremap = true, silent = true })
+
+-- Explore
+vim.api.nvim_set_keymap('n', '<leader>e', ':Ex<CR>', { noremap = true, silent = true })
+-- Split Explore
+vim.api.nvim_set_keymap('n', '<leader>s', ':Se<CR>', { noremap = true, silent = true })
+-- Vsplit Explore
+vim.api.nvim_set_keymap('n', '<leader>v', ':vspl<CR>:Ex<CR>', { noremap = true, silent = true })
+-- Tab Explore
+vim.api.nvim_set_keymap('n', '<leader>T', ':tabe<CR>:Ex<CR>', { noremap = true, silent = true })
+
+-- Splits
+vim.api.nvim_set_keymap('n', '<leader>-', ':sp<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>\'', ':vsp<CR>', { noremap = true, silent = true })
 
 -- LSP Setup
 local lspconfig = require('lspconfig')
 local cmp = require('cmp')
-local saga = require('lspsaga')
+local lspsaga = require('lspsaga')
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
 -- Initialize LSP Saga for enhanced UI
-saga.setup({})
+lspsaga.setup({
+    ui = { border = "rounded" },
+    outline = { win_width = 50 },
+    code_action = {
+        enable = true,
+        sign = true,
+        sign_priority = 40,
+        virtual_text = true,
+        keys = {
+            quit = "<Esc>", -- Keybinding to quit the code action menu
+        },
+    },
+    code_action_icon = "💡",
+    finder_definition_icon = "📖",
+    finder_reference_icon = "🔍",
+    finder_action_keys = {
+        open = "o", vsplit = "s", split = "i", quit = "q", scroll_down = "<C-f>", scroll_up = "<C-b>"
+    },
+})
 
 local servers = {
     'pyright', 'rust_analyzer', 'bashls', 'yamlls', 'ts_ls',
@@ -174,6 +208,23 @@ cmp.setup({
     mapping = {
         ['<C-Space>'] = cmp.mapping.complete(),
         ['<CR>'] = cmp.mapping.confirm({ select = true }),
+        ["k"] = cmp.mapping.select_prev_item(),
+        ["j"] = cmp.mapping.select_next_item(),
+        ['<Up>'] = cmp.mapping.select_prev_item(),
+        ['<Down>'] = cmp.mapping.select_next_item(),
+        -- Add tab support
+        -- Add tab support
+        ["<S-Tab>"] = cmp.mapping.select_prev_item(),
+        ["<Tab>"] = cmp.mapping.select_next_item(),
+        ["<C-d>"] = cmp.mapping.scroll_docs(-4),
+        ["<C-f>"] = cmp.mapping.scroll_docs(4),
+        ["<C-Space>"] = cmp.mapping.complete(),
+        ["<Esc>"] = cmp.mapping.close(),
+        ["<C-c>"] = cmp.mapping.close(),
+        ["<CR>"] = cmp.mapping.confirm({
+          behavior = cmp.ConfirmBehavior.Insert,
+          select = true,
+        }),
     },
     sources = {
         { name = 'nvim_lsp' },
@@ -182,7 +233,7 @@ cmp.setup({
     },
 })
 
--- Generic LSP on_attach function
+---- Generic LSP on_attach function
 local function on_attach(client, bufnr)
     local buf_map = function(mode, lhs, rhs)
         vim.api.nvim_buf_set_keymap(bufnr, mode, lhs, rhs, { noremap = true, silent = true })
@@ -191,7 +242,7 @@ local function on_attach(client, bufnr)
     -- Keybindings for LSP
     buf_map('n', 'K', '<cmd>Lspsaga hover_doc<CR>')           -- Show type information
     buf_map('n', 'gd', '<cmd>Lspsaga goto_definition<CR>')    -- Go to definition
-    buf_map('n', 'gr', '<cmd>Lspsaga lsp_finder<CR>')         -- Find references/implementations
+    buf_map('n', 'gr', '<cmd>Lspsaga finder<CR>')         -- Find references/implementations
     buf_map('n', '<leader>a', '<cmd>Lspsaga code_action<CR>') -- Trigger code actions
     buf_map('n', '<leader>r', '<cmd>Lspsaga rename<CR>')      -- Rename symbol
     buf_map('n', '<leader>e', '<cmd>Lspsaga show_line_diagnostics<CR>') -- Show line diagnostics
@@ -246,11 +297,6 @@ cmp.setup({
     }),
 })
 
--- Context Window
-require('lspsaga').setup({
-    ui = { border = "rounded" },
-    outline = { win_width = 50 },
-})
 
 -- Terminal
 require('toggleterm').setup({
@@ -265,21 +311,21 @@ require('lualine').setup({
 
 -- ChatGPT Setup
 require("chatgpt").setup({
+    openai_params = {
+        model = "gpt-4o-mini",
+    },
     keymaps = {
         submit = "<C-s>", -- Submit query to ChatGPT
     }
 })
--- keybinding to open ChatGPT
-vim.api.nvim_set_keymap('n', '<Leader>c', ':ChatGPT<CR>', { noremap = true, silent = true })
-
 -- GitHub Copilot: Enable by default
 vim.g.copilot_enabled = true
 
--- ToggleTerm: C-t to open, C-w to move between windows
+-- ToggleTerm: <Leader>t to open, C-w to move between windows
 require('toggleterm').setup({
     direction = 'horizontal',
     size = 15,
-    open_mapping = [[<C-t>]],
+    open_mapping = [[<Leader>t]],
     on_open = function(term)
         vim.api.nvim_buf_set_keymap(
             term.bufnr,
@@ -292,12 +338,12 @@ require('toggleterm').setup({
 })
 
 -- ToggleTerm: Auto-enter Insert Mode when switching to a terminal window
-vim.cmd([[
-  augroup TerminalInsertMode
-    autocmd!
-    autocmd BufEnter term://* startinsert
-  augroup END
-]])
+-- vim.cmd([[
+--   augroup TerminalInsertMode
+--     autocmd!
+--     autocmd BufEnter term://* startinsert
+--   augroup END
+-- ]])
 
 -- Toggle between relative, absolute, and disabled line numbers
 vim.api.nvim_set_keymap('n', '<leader>n', [[:lua ToggleLineNumbers()<CR>]], { noremap = true, silent = true })
@@ -315,24 +361,6 @@ function ToggleLineNumbers()
         vim.wo.relativenumber = true
     end
 end
-
-vim.api.nvim_set_keymap('n', '<leader>e', ':Ex<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>s', ':Se<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>v', ':vspl<CR>:Ex<CR>', { noremap = true, silent = true })
-
-vim.api.nvim_set_keymap('n', '<leader>-', ':sp<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>\'', ':vsp<CR>', { noremap = true, silent = true })
-
--- Treesitter Playground setup
--- require("nvim-treesitter.configs").setup({
---     playground = {
---         enable = true,
---         updatetime = 25, -- Debounced time for highlighting nodes (in ms)
---         persist_queries = false, -- Whether the query persists across vim sessions
---     },
--- })
--- 
--- vim.api.nvim_set_keymap('n', '<leader>t', ':TSPlaygroundToggle<CR>', { noremap = true, silent = true })
 
 -- Python LSP setup
 local python_path = "python"
@@ -375,9 +403,31 @@ lspconfig.pyright.setup({
 })
 
 -- Rust LSP Setup
-lspconfig.rust_analyzer.setup({})
+lspconfig.rust_analyzer.setup({
+    on_attach = on_attach,
+    settings = {
+        ["rust-analyzer"] = {
+            imports = {
+                granularity = {
+                    group = "module",
+                },
+                prefix = "self",
+            },
+            cargo = {
+                buildScripts = {
+                    enable = true,
+                },
+            },
+            procMacro = {
+                enable = true
+            },
+        }
+    }
+})
 
 
+
+-- WhichKey setup
 wk = require("which-key")
 wk.setup()
 
@@ -410,8 +460,22 @@ wk.register({
       R = { "<cmd>lua vim.lsp.buf.rename()<CR>", "Rename symbol" },
       s = { "<cmd>lua vim.lsp.buf.document_symbol()<CR>", "Document symbols" },
       S = { "<cmd>lua vim.lsp.buf.workspace_symbol_search()<CR>", "Workspace symbol search" },
-    -- nmap <buffer> [d <plug>(lsp-previous-diagnostic)
-    -- nmap <buffer> ]d <plug>(lsp-next-diagnostic)
+      D = { "<cmd>lua vim.lsp.buf.declaration()<CR>", "Go to declaration" },
+      n = { "<cmd>lua vim.lsp.diagnostic.goto_next()<CR>", "Next diagnostic" },
+      p = { "<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>", "Previous diagnostic" },
+    },
+  L = {
+    name = "LSPSaga",
+      a = { "<cmd>Lspsaga code_action<CR>", "Code action" },
+      d = { "<cmd>Lspsaga hover_doc<CR>", "Hover doc" },
+      f = { "<cmd>Lspsaga finder<CR>", "LSP Finder" },
+      r = { "<cmd>Lspsaga rename<CR>", "Rename" },
+      s = { "<cmd>Lspsaga signature_help<CR>", "Signature help" },
+      t = { "<cmd>Lspsaga preview_definition<CR>", "Preview definition" },
+      T = { "<cmd>Lspsaga open_floaterm<CR>", "Open terminal" },
+      d = { "<cmd>Lspsaga show_line_diagnostics<CR>", "Show line diagnostics" },
+      D = { "<cmd>Lspsaga diagnostic_jump_prev<CR>", "Jump to previous diagnostic" },
+      n = { "<cmd>Lspsaga diagnostic_jump_next<CR>", "Jump to next diagnostic" },
     },
   t = {
    name = "Test",
@@ -452,7 +516,7 @@ wk.register({
      ["l"] = { "<cmd>ls<CR>", "List Buffers" },
   },
   -- tabs
-  t = {
+  T = {
     name = "Tabs",
     ["["] = { "<cmd>tabprev<CR>", "Previous Tab" },
     ["]"] = { "<cmd>tabnext<CR>", "Next Tab" },
