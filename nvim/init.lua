@@ -60,7 +60,7 @@ vim.opt.shortmess:append("rnixnm") -- Suppress unnecessary messages
 
 -- Install plugin manager
 vim.cmd([[
-call plug#begin('~/.vim/plugged')
+call plug#begin()
 
 " Plugin manager
 Plug 'neovim/nvim-lspconfig'
@@ -104,11 +104,18 @@ Plug 'sainnhe/sonokai'
 " NerdTree
 Plug 'preservim/nerdtree'
 
+Plug 'iamcco/markdown-preview.nvim'
+
+Plug 'honza/vim-snippets', { 'on': [] } " Prevents autoload
+
+
 call plug#end()
 ]])
 
--- Auto-install plugins if necessary
-local plug_installed = vim.fn.empty(vim.fn.glob('~/.vim/plugged/*')) == 1
+-- prevent vim-snippets from loading, we are using luasnip
+vim.g.loaded_vim_snippets = 1
+
+local plug_installed = vim.fn.empty(vim.fn.glob(vim.fn.stdpath("data") .. '/plugged/vim-snippets/snippets')) == 1
 if plug_installed then
     vim.cmd('PlugInstall --sync | q')
 end
@@ -147,17 +154,19 @@ vim.api.nvim_set_keymap('n', '<Leader>g', ':Telescope live_grep<CR>', { noremap 
 vim.api.nvim_set_keymap('n', '<Leader>t', ':ToggleTerm<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Leader>r', ':TestNearest<CR>', { noremap = true, silent = true })
 
--- LSP Code Actions
-vim.api.nvim_set_keymap('n', '<Leader>a', ':Lspsaga code_action<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('v', '<Leader>a', ':Lspsaga range_code_action<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<Leader>o', ':Lspsaga outline<CR>', { noremap = true, silent = true })
-
 -- ChatGPT
 vim.api.nvim_set_keymap('n', '<Leader>c', ':ChatGPT<CR>', { noremap = true, silent = true })
 
 -- Clear highlights
 vim.api.nvim_set_keymap("n", "<esc>", "<esc>:nohl<cr>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "<C-c>", "<esc>:close<cr>", { noremap = true, silent = true })
+-- vim.api.nvim_set_keymap("n", "<C-c>", "<esc>:close<cr>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap(
+    'n',
+    '<leader>X',
+    ':lua for _, win in ipairs(vim.api.nvim_list_wins()) do local config = vim.api.nvim_win_get_config(win); if config.relative ~= "" then vim.api.nvim_win_close(win, true) end end<CR>',
+    { noremap = true, silent = true }
+)
+
 
 -- NERDTreeToggle
 vim.api.nvim_set_keymap('n', '<leader>x', ':NERDTreeToggle<CR>', { noremap = true, silent = true })
@@ -178,6 +187,7 @@ local lspconfig = require('lspconfig')
 local cmp = require('cmp')
 local lspsaga = require('lspsaga')
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
+local luasnip = require('luasnip')
 
 -- Initialize LSP Saga for enhanced UI
 lspsaga.setup({
@@ -185,6 +195,8 @@ lspsaga.setup({
     outline = { win_width = 50 },
     code_action = {
         enable = true,
+        show_server_name = true,
+        extend_git_signs = true,
         sign = true,
         sign_priority = 40,
         virtual_text = true,
@@ -206,68 +218,130 @@ local servers = {
 }
 
 require("luasnip.loaders.from_vscode").lazy_load()
+require("luasnip.loaders.from_snipmate").lazy_load({
+    paths = vim.fn.stdpath("data") .. "/plugged/vim-snippets/snippets"
+})
 
 -- Auto-completion setup
 cmp.setup({
+    completion = {
+        keyword_length = 2,
+    },
     snippet = {
         expand = function(args) require('luasnip').lsp_expand(args.body) end,
     },
     mapping = {
         ['<C-Space>'] = cmp.mapping.complete(),
-        ['<CR>'] = cmp.mapping.confirm({ select = true }),
         ["k"] = cmp.mapping.select_prev_item(),
         ["j"] = cmp.mapping.select_next_item(),
         ['<Up>'] = cmp.mapping.select_prev_item(),
         ['<Down>'] = cmp.mapping.select_next_item(),
-        -- Add tab support
-        -- Add tab support
-        ["<S-Tab>"] = cmp.mapping.select_prev_item(),
-        ["<Tab>"] = cmp.mapping.select_next_item(),
         ["<C-d>"] = cmp.mapping.scroll_docs(-4),
         ["<C-f>"] = cmp.mapping.scroll_docs(4),
         ["<C-Space>"] = cmp.mapping.complete(),
         ["<Esc>"] = cmp.mapping.close(),
         ["<C-c>"] = cmp.mapping.close(),
         ["<CR>"] = cmp.mapping.confirm({
-          behavior = cmp.ConfirmBehavior.Insert,
+          -- behavior = cmp.ConfirmBehavior.Insert,
           select = true,
         }),
+        ["<Tab>"] = cmp.mapping(function(fallback)
+          if luasnip.expand_or_jumpable() then
+            luasnip.expand_or_jump()
+          elseif cmp.visible() then
+            cmp.select_next_item()
+          else
+            fallback()
+          end
+        end, { "i", "s" }),
+        ["<S-Tab>"] = cmp.mapping(function(fallback)
+          if luasnip.jumpable(-1) then
+            luasnip.jump(-1)
+          else
+            fallback()
+          end
+        end, { "i", "s" }),
     },
     sources = {
         { name = 'nvim_lsp' },
         { name = 'buffer' },
-        { name = 'path' },
         { name = 'luasnip' },
+        { name = 'path' },
     },
 })
 
----- Generic LSP on_attach function
+
+-- LSP 
 local function on_attach(client, bufnr)
     local buf_map = function(mode, lhs, rhs)
         vim.api.nvim_buf_set_keymap(bufnr, mode, lhs, rhs, { noremap = true, silent = true })
     end
 
-    -- Keybindings for LSP
-    buf_map('n', 'K', '<cmd>Lspsaga hover_doc<CR>')           -- Show type information
-    buf_map('n', 'gd', '<cmd>Lspsaga goto_definition<CR>')    -- Go to definition
-    buf_map('n', 'gr', '<cmd>Lspsaga finder<CR>')         -- Find references/implementations
-    buf_map('n', '<leader>a', '<cmd>Lspsaga code_action<CR>') -- Trigger code actions
-    buf_map('n', '<leader>r', '<cmd>Lspsaga rename<CR>')      -- Rename symbol
-    buf_map('n', '<leader>e', '<cmd>Lspsaga show_line_diagnostics<CR>') -- Show line diagnostics
-    buf_map('n', '[d', '<cmd>Lspsaga diagnostic_jump_prev<CR>') -- Jump to previous diagnostic
-    buf_map('n', ']d', '<cmd>Lspsaga diagnostic_jump_next<CR>') -- Jump to next diagnostic
+    -- Only map keys if the LSP server supports the feature
+    if client.server_capabilities.hoverProvider then
+        buf_map('n', 'K', '<cmd>Lspsaga hover_doc<CR>')
+    end
+
+    if client.server_capabilities.definitionProvider then
+        buf_map('n', 'gd', '<cmd>Lspsaga goto_definition<CR>')
+    end
+
+    if client.server_capabilities.referencesProvider then
+        buf_map('n', 'gr', '<cmd>Lspsaga finder<CR>')
+    end
+
+    if client.server_capabilities.codeActionProvider then
+        buf_map('n', '<leader>a', ':lua ShowCodeActions()<CR>')
+    end
+
+    if client.server_capabilities.renameProvider then
+        buf_map('n', '<leader>r', '<cmd>Lspsaga rename<CR>')
+    end
+
+    if client.server_capabilities.diagnosticProvider then
+        buf_map('n', '<leader>e', '<cmd>Lspsaga show_line_diagnostics<CR>')
+        buf_map('n', '[d', '<cmd>Lspsaga diagnostic_jump_prev<CR>')
+        buf_map('n', ']d', '<cmd>Lspsaga diagnostic_jump_next<CR>')
+    end
+
+    -- Additional LSP Saga functionality
+    buf_map('n', '<leader>o', '<cmd>Lspsaga outline<CR>')
+end
+
+function ShowCodeActions()
+    local context = { diagnostics = vim.lsp.diagnostic.get_line_diagnostics() }
+    local params = vim.lsp.util.make_range_params()
+    params.context = context
+
+    -- Request code actions
+    --
+
+    vim.lsp.buf_request(0, 'textDocument/codeAction', params, function(err, result, ctx, config)
+        if not result or vim.tbl_isempty(result) then
+            print("No code actions available")
+            return
+        end
+        vim.defer_fn(function()
+            vim.cmd("Lspsaga code_action")
+        end, 50)
+    end)
 end
 
 -- LSP capabilities for completion
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
--- Setup each language server
 for _, lsp in ipairs(servers) do
     lspconfig[lsp].setup({
-        on_attach = on_attach,
+        on_attach = function(client, bufnr)
+            on_attach(client, bufnr)
+        end,
         capabilities = capabilities,
+        flags = {
+            debounce_text_changes = 150, -- Improve responsiveness
+        },
     })
 end
+
 
 -- Diagnostics settings
 vim.diagnostic.config({
@@ -415,6 +489,8 @@ lspconfig.rust_analyzer.setup({
                 prefix = "self",
             },
             cargo = {
+                allFeatures = true,
+                loadOutDirsFromCheck = true,
                 buildScripts = {
                     enable = true,
                 },
@@ -422,130 +498,114 @@ lspconfig.rust_analyzer.setup({
             procMacro = {
                 enable = true
             },
+            diagnostics = {
+                disabled = { "unresolved-module" }, -- Suppress noisy "not part of a crate" errors
+            },
         }
     }
 })
 
 -- WhichKey setup
 wk = require("which-key")
-wk.setup()
+wk.setup({
+  delay = 200,
+})
 
-wk.register({
-  c = {
-    name = "ChatGPT",
-      c = { "<cmd>ChatGPT<CR>", "ChatGPT" },
-      e = { "<cmd>ChatGPTEditWithInstruction<CR>", "Edit with instruction", mode = { "n", "v" } },
-      g = { "<cmd>ChatGPTRun grammar_correction<CR>", "Grammar Correction", mode = { "n", "v" } },
-      t = { "<cmd>ChatGPTRun translate<CR>", "Translate", mode = { "n", "v" } },
-      k = { "<cmd>ChatGPTRun keywords<CR>", "Keywords", mode = { "n", "v" } },
-      d = { "<cmd>ChatGPTRun docstring<CR>", "Docstring", mode = { "n", "v" } },
-      a = { "<cmd>ChatGPTRun add_tests<CR>", "Add Tests", mode = { "n", "v" } },
-      o = { "<cmd>ChatGPTRun optimize_code<CR>", "Optimize Code", mode = { "n", "v" } },
-      s = { "<cmd>ChatGPTRun summarize<CR>", "Summarize", mode = { "n", "v" } },
-      f = { "<cmd>ChatGPTRun fix_bugs<CR>", "Fix Bugs", mode = { "n", "v" } },
-      x = { "<cmd>ChatGPTRun explain_code<CR>", "Explain Code", mode = { "n", "v" } },
-      r = { "<cmd>ChatGPTRun roxygen_edit<CR>", "Roxygen Edit", mode = { "n", "v" } },
-      l = { "<cmd>ChatGPTRun code_readability_analysis<CR>", "Code Readability Analysis", mode = { "n", "v" } },
+wk.add({
+    { ";L", group = "LSPSaga" },
+    { ";LD", "<cmd>Lspsaga diagnostic_jump_prev<CR>", desc = "Jump to previous diagnostic" },
+    { ";LT", "<cmd>Lspsaga open_floaterm<CR>", desc = "Open terminal" },
+    { ";La", "<cmd>Lspsaga code_action<CR>", desc = "Code action" },
+    { ";Ld", "<cmd>Lspsaga show_line_diagnostics<CR>", desc = "Show line diagnostics" },
+    { ";Lf", "<cmd>Lspsaga finder<CR>", desc = "LSP Finder" },
+    { ";Ln", "<cmd>Lspsaga diagnostic_jump_next<CR>", desc = "Jump to next diagnostic" },
+    { ";Lr", "<cmd>Lspsaga rename<CR>", desc = "Rename" },
+    { ";Ls", "<cmd>Lspsaga signature_help<CR>", desc = "Signature help" },
+    { ";Lt", "<cmd>Lspsaga preview_definition<CR>", desc = "Preview definition" },
+    { ";T", group = "Tabs" },
+    { ";TC", "<cmd>tabonly<CR>", desc = "Close All Tabs" },
+    { ";T[", "<cmd>tabprev<CR>", desc = "Previous Tab" },
+    { ";T]", "<cmd>tabnext<CR>", desc = "Next Tab" },
+    { ";Tc", "<cmd>tabclose<CR>", desc = "Close Tab" },
+    { ";Tl", "<cmd>tabs<CR>", desc = "List Tabs" },
+    { ";Tn", "<cmd>tabnew<CR>", desc = "New Tab" },
+    { ";[", "<cmd>cprev<CR>", desc = "Previous quickfix entry" },
+    { ";]", "<cmd>cnext<CR>", desc = "Next quickfix entry" },
+    { ";b", group = "Buffers" },
+    { ";bD", "<cmd>bufdo bd<CR>", desc = "Delete All Buffers" },
+    { ";b[", "<cmd>bp<CR>", desc = "Previous Buffer" },
+    { ";b]", "<cmd>bn<CR>", desc = "Next Buffer" },
+    { ";bd", "<cmd>bd<CR>", desc = "Delete Buffer" },
+    { ";bl", "<cmd>ls<CR>", desc = "List Buffers" },
+    { ";c", group = "ChatGPT" },
+    { ";cc", "<cmd>ChatGPT<CR>", desc = "ChatGPT" },
+    { ";f", "<cmd>FZF<CR>", desc = "Fuzzy Open File" },
+    { ";g", group = "Git" },
+    { ";gA", "<cmd>Git add -A<CR>", desc = "Git Add All" },
+    { ";gC", "<cmd>Git checkout", desc = "Git Checkout" },
+    { ";gF", "<cmd>Git fetch --all<CR>", desc = "Git Fetch All" },
+    { ";gP", "<cmd>Git pull<CR>", desc = "Git Pull" },
+    { ";gT", "<cmd>Git stash pop<CR>", desc = "Git Stash Pop" },
+    { ";gb", "<cmd>Git blame<CR>", desc = "Git Blame" },
+    { ";gc", "<cmd>Git commit<CR>", desc = "Git Commit" },
+    { ";gd", "<cmd>Gdiffsplit<CR>", desc = "Git Diff" },
+    { ";gf", "<cmd>Git fetch<CR>", desc = "Git Fetch" },
+    { ";gh", "<cmd>Git hist<CR>", desc = "Git history" },
+    { ";gl", "<cmd>Git log<CR>", desc = "Git Log" },
+    { ";gp", "<cmd>Git push --force-with-lease --force-if-includes<CR>", desc = "Git Push" },
+    { ";gr", " <cmd>Git rebase -i origin/main<CR>", desc = "Git rebase" },
+    { ";gs", "<cmd>Git status<CR>", desc = "Git Status" },
+    { ";gt", "<cmd>Git stash<CR>", desc = "Git Stash" },
+    { ";l", group = "LSP" },
+    { ";lC", "<cmd>lua vim.lsp.buf.outgoing_calls()<CR>", desc = "Outgoing calls" },
+    { ";lD", "<cmd>lua vim.lsp.buf.declaration()<CR>", desc = "Go to declaration" },
+    { ";lR", "<cmd>lua vim.lsp.buf.rename()<CR>", desc = "Rename symbol" },
+    { ";lS", "<cmd>lua vim.lsp.buf.workspace_symbol_search()<CR>", desc = "Workspace symbol search" },
+    { ";la", "<cmd>lua vim.lsp.buf.code_action()<CR>", desc = "Code action" },
+    { ";lc", "<cmd>lua vim.lsp.buf.incoming_calls()<CR>", desc = "Incoming calls" },
+    { ";ld", "<cmd>lua vim.lsp.buf.definition()<CR>", desc = "Go to definition" },
+    { ";lf", "<cmd>lua vim.lsp.buf.formatting()<CR>", desc = "Format code" },
+    { ";lh", "<cmd>lua vim.lsp.buf.hover()<CR>", desc = "Show hover information" },
+    { ";li", "<cmd>lua vim.lsp.buf.implementation()<CR>", desc = "Go to implementation" },
+    { ";ln", "<cmd>lua vim.lsp.diagnostic.goto_next()<CR>", desc = "Next diagnostic" },
+    { ";lp", "<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>", desc = "Previous diagnostic" },
+    { ";lr", "<cmd>lua vim.lsp.buf.references()<CR>", desc = "Find references" },
+    { ";ls", "<cmd>lua vim.lsp.buf.document_symbol()<CR>", desc = "Document symbols" },
+    { ";lt", "<cmd>lua vim.lsp.buf.type_definition()<CR>", desc = "Go to type definition" },
+    { ";m", "<cmd>FZFMru<CR>", desc = "Fuzzy Open MRU" },
+    { ";s", group = "Search" },
+    { ";sS", "<cmd>grepadd<CR>", desc = "Search for symbol, add to results" },
+    { ";s[", "<cmd>cprev<CR>", desc = "Previous Match" },
+    { ";s]", "<cmd>cnext<CR>", desc = "Next Match" },
+    { ";sc", "<cmd>cclose<CR>", desc = "Close Cwindow" },
+    { ";so", "<cmd>copen<CR>", desc = "Open Cwindow" },
+    { ";ss", "<cmd>grep<CR>", desc = "Search for symbol" },
+    { ";sw", "<cmd>cwindow<CR>", desc = "Cwindow Size" },
+    { ";t", group = "Test" },
+    { ";tf", "<cmd>TestFile<CR>", desc = "Test File" },
+    { ";tg", "<cmd>TestVisit<CR>", desc = "Test Visit" },
+    { ";tl", "<cmd>TestLast<CR>", desc = "Test Last" },
+    { ";ts", "<cmd>TestSuite<CR>", desc = "Test Suite" },
+    { ";tt", "<cmd>TestNearest<CR>", desc = "Test Nearest" },
+    { ";w", group = "CWindow)" },
+    { ";w[", "<cmd>cprev<CR>", desc = "Previous Error" },
+    { ";w]", "<cmd>cnext<CR>", desc = "Next Error" },
+    { ";wc", "<cmd>cclose<CR>", desc = "Close Cwindow" },
+    { ";wo", "<cmd>copen<CR>", desc = "Open Cwindow" },
+    { ";ww", "<cmd>cwindow<CR>", desc = "Cwindow Size" },
+    {
+      mode = { "n", "v" },
+      { ";ca", "<cmd>ChatGPTRun add_tests<CR>", desc = "Add Tests" },
+      { ";cd", "<cmd>ChatGPTRun docstring<CR>", desc = "Docstring" },
+      { ";ce", "<cmd>ChatGPTEditWithInstruction<CR>", desc = "Edit with instruction" },
+      { ";cf", "<cmd>ChatGPTRun fix_bugs<CR>", desc = "Fix Bugs" },
+      { ";cg", "<cmd>ChatGPTRun grammar_correction<CR>", desc = "Grammar Correction" },
+      { ";ck", "<cmd>ChatGPTRun keywords<CR>", desc = "Keywords" },
+      { ";cl", "<cmd>ChatGPTRun code_readability_analysis<CR>", desc = "Code Readability Analysis" },
+      { ";co", "<cmd>ChatGPTRun optimize_code<CR>", desc = "Optimize Code" },
+      { ";cr", "<cmd>ChatGPTRun roxygen_edit<CR>", desc = "Roxygen Edit" },
+      { ";cs", "<cmd>ChatGPTRun summarize<CR>", desc = "Summarize" },
+      { ";ct", "<cmd>ChatGPTRun translate<CR>", desc = "Translate" },
+      { ";cx", "<cmd>ChatGPTRun explain_code<CR>", desc = "Explain Code" },
     },
-  l = {
-    name = "LSP",
-      a = { "<cmd>lua vim.lsp.buf.code_action()<CR>", "Code action" },
-      d = { "<cmd>lua vim.lsp.buf.definition()<CR>", "Go to definition" },
-      f = { "<cmd>lua vim.lsp.buf.formatting()<CR>", "Format code" },
-      h = { "<cmd>lua vim.lsp.buf.hover()<CR>", "Show hover information" },
-      i = { "<cmd>lua vim.lsp.buf.implementation()<CR>", "Go to implementation" },
-      r = { "<cmd>lua vim.lsp.buf.references()<CR>", "Find references" },
-      t = { "<cmd>lua vim.lsp.buf.type_definition()<CR>", "Go to type definition" },
-      R = { "<cmd>lua vim.lsp.buf.rename()<CR>", "Rename symbol" },
-      s = { "<cmd>lua vim.lsp.buf.document_symbol()<CR>", "Document symbols" },
-      S = { "<cmd>lua vim.lsp.buf.workspace_symbol_search()<CR>", "Workspace symbol search" },
-      D = { "<cmd>lua vim.lsp.buf.declaration()<CR>", "Go to declaration" },
-      n = { "<cmd>lua vim.lsp.diagnostic.goto_next()<CR>", "Next diagnostic" },
-      p = { "<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>", "Previous diagnostic" },
-    },
-  L = {
-    name = "LSPSaga",
-      a = { "<cmd>Lspsaga code_action<CR>", "Code action" },
-      d = { "<cmd>Lspsaga hover_doc<CR>", "Hover doc" },
-      f = { "<cmd>Lspsaga finder<CR>", "LSP Finder" },
-      r = { "<cmd>Lspsaga rename<CR>", "Rename" },
-      s = { "<cmd>Lspsaga signature_help<CR>", "Signature help" },
-      t = { "<cmd>Lspsaga preview_definition<CR>", "Preview definition" },
-      T = { "<cmd>Lspsaga open_floaterm<CR>", "Open terminal" },
-      d = { "<cmd>Lspsaga show_line_diagnostics<CR>", "Show line diagnostics" },
-      D = { "<cmd>Lspsaga diagnostic_jump_prev<CR>", "Jump to previous diagnostic" },
-      n = { "<cmd>Lspsaga diagnostic_jump_next<CR>", "Jump to next diagnostic" },
-    },
-  t = {
-   name = "Test",
-     t = { "<cmd>TestNearest<CR>", "Test Nearest" },
-     f = { "<cmd>TestFile<CR>", "Test File" },
-     s = { "<cmd>TestSuite<CR>", "Test Suite" },
-     l = { "<cmd>TestLast<CR>", "Test Last" },
-     g = { "<cmd>TestVisit<CR>", "Test Visit" },
-   },
-  g = {
-    name = "Git",
-      d = { "<cmd>Gdiffsplit<CR>", "Git Diff" },
-      b = { "<cmd>Git blame<CR>", "Git Blame" },
-      c = { "<cmd>Git commit<CR>", "Git Commit" },
-      p = { "<cmd>Git push --force-with-lease --force-if-includes<CR>", "Git Push" },
-      P = { "<cmd>Git pull<CR>", "Git Pull" },
-      s = { "<cmd>Git status<CR>", "Git Status" },
-      r = {" <cmd>Git rebase -i origin/main<CR>", "Git rebase" }, -- will this work?
-      l = { "<cmd>Git log<CR>", "Git Log" },
-      h = { "<cmd>Git hist<CR>", "Git history" },
-      t = { "<cmd>Git stash<CR>", "Git Stash" },
-      T = { "<cmd>Git stash pop<CR>", "Git Stash Pop" },
-      f = { "<cmd>Git fetch<CR>", "Git Fetch" },
-      F = { "<cmd>Git fetch --all<CR>", "Git Fetch All" },
-      A = { "<cmd>Git add -A<CR>", "Git Add All" },
-      C = { "<cmd>Git checkout", "Git Checkout" },
-    },
-  -- fzf
-  f = { "<cmd>FZF<CR>", "Fuzzy Open File" },
-  m = { "<cmd>FZFMru<CR>", "Fuzzy Open MRU" },
-  -- buffers
-  b = {
-    name = "Buffers",
-     ["]"] = { "<cmd>bn<CR>", "Next Buffer" },
-     ["["] = { "<cmd>bp<CR>", "Previous Buffer" },
-     ["d"] = { "<cmd>bd<CR>", "Delete Buffer" },
-     ["D"] = { "<cmd>bufdo bd<CR>", "Delete All Buffers" },
-     ["l"] = { "<cmd>ls<CR>", "List Buffers" },
-  },
-  -- tabs
-  T = {
-    name = "Tabs",
-    ["["] = { "<cmd>tabprev<CR>", "Previous Tab" },
-    ["]"] = { "<cmd>tabnext<CR>", "Next Tab" },
-    ["c"] = { "<cmd>tabclose<CR>", "Close Tab" },
-    ["C"] = { "<cmd>tabonly<CR>", "Close All Tabs" },
-    ["l"] = { "<cmd>tabs<CR>", "List Tabs" },
-    ["n"] = { "<cmd>tabnew<CR>", "New Tab" },
-  },
-  -- cwindow
-  w = {
-    name = "Cwindow (QuickFix)",
-    ["["] = { "<cmd>cprev<CR>", "Previous Error" },
-    ["]"] = { "<cmd>cnext<CR>", "Next Error" },
-    ["o"] = { "<cmd>copen<CR>", "Open Cwindow" },
-    ["c"] = { "<cmd>cclose<CR>", "Close Cwindow" },
-    ["w"] = { "<cmd>cwindow<CR>", "Cwindow Size" },
-  },
-  -- grep
-  s = {
-    name = "Search",
-    ["s"] = { "<cmd>grep<CR>", "Search for symbol" },
-    ["S"] = { "<cmd>grepadd<CR>", "Search for symbol, add to results" },
-    ["["] = { "<cmd>cprev<CR>", "Previous Match" },
-    ["]"] = { "<cmd>cnext<CR>", "Next Match" },
-    ["o"] = { "<cmd>copen<CR>", "Open Cwindow" },
-    ["c"] = { "<cmd>cclose<CR>", "Close Cwindow" },
-    ["w"] = { "<cmd>cwindow<CR>", "Cwindow Size" },
-  },
-  ["]"] = { "<cmd>cnext<CR>", "Next quickfix entry" },
-  ["["] = { "<cmd>cprev<CR>", "Previous quickfix entry" },
-  prefix = "<leader>",
-  }
-)
+})
