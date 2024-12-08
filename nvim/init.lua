@@ -70,6 +70,7 @@ Plug 'hrsh7th/cmp-buffer'
 Plug 'hrsh7th/cmp-path'
 Plug 'L3MON4D3/LuaSnip'
 Plug 'saadparwaiz1/cmp_luasnip'
+Plug 'rafamadriz/friendly-snippets'
 Plug 'nvim-tree/nvim-tree.lua'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-treesitter/playground'
@@ -99,6 +100,9 @@ Plug 'github/copilot.vim'
 
 " colorscheme
 Plug 'sainnhe/sonokai'
+
+" NerdTree
+Plug 'preservim/nerdtree'
 
 call plug#end()
 ]])
@@ -155,7 +159,8 @@ vim.api.nvim_set_keymap('n', '<Leader>c', ':ChatGPT<CR>', { noremap = true, sile
 vim.api.nvim_set_keymap("n", "<esc>", "<esc>:nohl<cr>", { noremap = true, silent = true })
 vim.api.nvim_set_keymap("n", "<C-c>", "<esc>:close<cr>", { noremap = true, silent = true })
 
--- Explore
+-- NERDTreeToggle
+vim.api.nvim_set_keymap('n', '<leader>x', ':NERDTreeToggle<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>e', ':Ex<CR>', { noremap = true, silent = true })
 -- Split Explore
 vim.api.nvim_set_keymap('n', '<leader>s', ':Se<CR>', { noremap = true, silent = true })
@@ -200,6 +205,8 @@ local servers = {
     'gopls', 'kotlin_language_server', 'eslint'
 }
 
+require("luasnip.loaders.from_vscode").lazy_load()
+
 -- Auto-completion setup
 cmp.setup({
     snippet = {
@@ -230,6 +237,7 @@ cmp.setup({
         { name = 'nvim_lsp' },
         { name = 'buffer' },
         { name = 'path' },
+        { name = 'luasnip' },
     },
 })
 
@@ -304,6 +312,22 @@ require('toggleterm').setup({
     size = 15,
 })
 
+-- ToggleTerm: <Leader>t to open, <Esc><C-w>[hjkl] to move between windows
+require('toggleterm').setup({
+    direction = 'horizontal',
+    size = 15,
+    open_mapping = [[<Leader>t]],
+    on_open = function(term)
+        vim.api.nvim_buf_set_keymap(
+            term.bufnr,
+            't',
+            '<C-w>',
+            [[<C-\><C-n><C-w>]],
+            { noremap = true, silent = true }
+        )
+    end,
+})
+
 -- Lualine
 require('lualine').setup({
     options = { theme = 'auto' },
@@ -321,29 +345,6 @@ require("chatgpt").setup({
 -- GitHub Copilot: Enable by default
 vim.g.copilot_enabled = true
 
--- ToggleTerm: <Leader>t to open, C-w to move between windows
-require('toggleterm').setup({
-    direction = 'horizontal',
-    size = 15,
-    open_mapping = [[<Leader>t]],
-    on_open = function(term)
-        vim.api.nvim_buf_set_keymap(
-            term.bufnr,
-            't',
-            '<C-w>',
-            [[<C-\><C-n><C-w>]],
-            { noremap = true, silent = true }
-        )
-    end,
-})
-
--- ToggleTerm: Auto-enter Insert Mode when switching to a terminal window
--- vim.cmd([[
---   augroup TerminalInsertMode
---     autocmd!
---     autocmd BufEnter term://* startinsert
---   augroup END
--- ]])
 
 -- Toggle between relative, absolute, and disabled line numbers
 vim.api.nvim_set_keymap('n', '<leader>n', [[:lua ToggleLineNumbers()<CR>]], { noremap = true, silent = true })
@@ -424,8 +425,6 @@ lspconfig.rust_analyzer.setup({
         }
     }
 })
-
-
 
 -- WhichKey setup
 wk = require("which-key")
