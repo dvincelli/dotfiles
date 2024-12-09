@@ -1,7 +1,6 @@
--- 
 -- Set Leader key
-vim.g.mapLeader = ','
-vim.g.maplocalLeader = ','
+vim.g.mapleader = ','
+vim.g.maplocalleader = ','
 
 -- Basic settings
 vim.o.compatible = false -- Disable vi compatibility
@@ -38,11 +37,13 @@ vim.o.sidescrolloff = 5 -- Keep 5 columns visible left/right of cursor
 vim.o.grepprg = "rg --vimgrep" -- Use ripgrep for :grep
 vim.opt.grepformat:append("%f:%l:%c:%m")
 
--- Leader keys
-vim.g.mapleader = ","
-vim.g.maplocalleader = ","
+-- Visual feedback
+vim.o.showmode = true -- Show current mode
+vim.o.showcmd = true -- Display incomplete commands
 
--- Command abbreviations
+vim.opt.shortmess:append("rnixnm") -- Suppress unnecessary messages
+
+-- Command abbreviations, so we can type :rg and it becomes :grep
 vim.cmd([[
     function! CommandCabbr(abbreviation, expansion)
 	execute 'cabbr ' . a:abbreviation . ' <c-r>=getcmdpos() == 1 && getcmdtype() == ":" ? "' . a:expansion . '" : "' . a:abbreviation . '"<CR>'
@@ -53,41 +54,53 @@ vim.cmd([[
     CommandCabbr rg grep
 ]])
 
--- Visual feedback
-vim.o.showmode = true -- Show current mode
-vim.o.showcmd = true -- Display incomplete commands
-vim.opt.shortmess:append("rnixnm") -- Suppress unnecessary messages
-
 -- Install plugin manager
 vim.cmd([[
 call plug#begin()
 
-" Plugin manager
-Plug 'neovim/nvim-lspconfig'
-Plug 'hrsh7th/nvim-cmp'
-Plug 'hrsh7th/cmp-nvim-lsp'
-Plug 'hrsh7th/cmp-buffer'
-Plug 'hrsh7th/cmp-path'
-Plug 'L3MON4D3/LuaSnip'
-Plug 'saadparwaiz1/cmp_luasnip'
-Plug 'rafamadriz/friendly-snippets'
-Plug 'nvim-tree/nvim-tree.lua'
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-Plug 'nvim-treesitter/playground'
-Plug 'nvim-lualine/lualine.nvim'
-Plug 'mfussenegger/nvim-dap'
-Plug 'vim-test/vim-test'
-Plug 'nvim-tree/nvim-web-devicons'
-Plug 'akinsho/toggleterm.nvim'
-Plug 'glepnir/lspsaga.nvim'
+" LSP
+Plug 'neovim/nvim-lspconfig'            " LSP
+Plug 'glepnir/lspsaga.nvim'             " Code Actions, etc.
 Plug 'ray-x/lsp_signature.nvim'
+Plug 'iamcco/markdown-preview.nvim'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+
+" Completion
+Plug 'hrsh7th/nvim-cmp'
+Plug 'hrsh7th/cmp-nvim-lsp'             " Complete on LSP
+Plug 'hrsh7th/cmp-buffer'               " Complete on buffer contents
+Plug 'hrsh7th/cmp-path'                 " Complete on file-systems paths
+
+" Snippets
+Plug 'L3MON4D3/LuaSnip'                   
+Plug 'saadparwaiz1/cmp_luasnip'         " Complete on snippets
+Plug 'rafamadriz/friendly-snippets'     " Predefined snippets
+Plug 'honza/vim-snippets', { 'on': [] } " Prevents autoload, we just want the snippets, luasnip will load them
+
+" Status Line
+Plug 'nvim-lualine/lualine.nvim'
+
+" Tree, explorer
+Plug 'nvim-neo-tree/neo-tree.nvim'
+Plug 'nvim-treesitter/playground'
+Plug 'mfussenegger/nvim-dap'
+Plug 'nvim-tree/nvim-web-devicons'
+
+" Terminal
+Plug 'akinsho/toggleterm.nvim'
+
+" Keys, navigation
 Plug 'folke/which-key.nvim'
 Plug 'christoomey/vim-tmux-navigator'
+
+" Fzf and MRU list
 Plug 'junegunn/fzf', { 'do': './install --all' }
 Plug 'yegappan/mru'
-Plug 'mhinz/vim-signify'
-Plug 'tpope/vim-fugitive'
-Plug 'rhysd/committia.vim'
+
+" Git
+Plug 'mhinz/vim-signify'    " Git in the gutter
+Plug 'tpope/vim-fugitive'   " Git commands
+Plug 'rhysd/committia.vim'  " Git commit editor
 
 " ChatGPT integration
 Plug 'jackMort/ChatGPT.nvim', { 'do': 'pip install -r requirements.txt' }
@@ -101,13 +114,15 @@ Plug 'github/copilot.vim'
 " colorscheme
 Plug 'sainnhe/sonokai'
 
-" NerdTree
-Plug 'preservim/nerdtree'
+" Tests
+Plug 'antoinemadec/FixCursorHold.nvim'
+Plug 'nvim-neotest/nvim-nio'
+Plug 'nvim-neotest/neotest'
 
-Plug 'iamcco/markdown-preview.nvim'
-
-Plug 'honza/vim-snippets', { 'on': [] } " Prevents autoload
-
+Plug 'nvim-neotest/neotest-python'
+Plug 'marilari88/neotest-vitest'
+Plug 'zidhuss/neotest-minitest'
+Plug 'rouge8/neotest-rust'
 
 call plug#end()
 ]])
@@ -120,6 +135,7 @@ if plug_installed then
     vim.cmd('PlugInstall --sync | q')
 end
 
+-- fzf and MRU
 vim.g.FZF_DEFAULT_COMMAND = 'rg --files --hidden --follow --glob "!.git/*" --max-filesize 1M'
 
 if vim.g.syntax_on then
@@ -152,7 +168,8 @@ vim.opt.clipboard:append("unnamedplus") -- Share clipboard with system
 vim.api.nvim_set_keymap('n', '<Leader>f', ':Telescope find_files<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Leader>g', ':Telescope live_grep<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Leader>t', ':ToggleTerm<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<Leader>r', ':TestNearest<CR>', { noremap = true, silent = true })
+-- DO THIS, but for neotest: vim.api.nvim_set_keymap('n', '<Leader>r', ':TestNearest<CR>', { noremap = true, silent = true })
+
 
 -- ChatGPT
 vim.api.nvim_set_keymap('n', '<Leader>c', ':ChatGPT<CR>', { noremap = true, silent = true })
@@ -167,10 +184,8 @@ vim.api.nvim_set_keymap(
     { noremap = true, silent = true }
 )
 
-
--- NERDTreeToggle
-vim.api.nvim_set_keymap('n', '<leader>x', ':NERDTreeToggle<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>e', ':Ex<CR>', { noremap = true, silent = true })
+-- Tree explorer
+vim.api.nvim_set_keymap("n", "<leader>e", ":Neotree toggle<CR>", { noremap = true, silent= true })
 -- Split Explore
 vim.api.nvim_set_keymap('n', '<leader>s', ':Se<CR>', { noremap = true, silent = true })
 -- Vsplit Explore
@@ -270,7 +285,6 @@ cmp.setup({
     },
 })
 
-
 -- LSP 
 local function on_attach(client, bufnr)
     local buf_map = function(mode, lhs, rhs)
@@ -362,24 +376,6 @@ require('nvim-treesitter.configs').setup({
     textobjects = { enable = true },
 })
 
--- Completion
-cmp.setup({
-   snippet = {
-        expand = function(args) require('luasnip').lsp_expand(args.body) end,
-    },
-    mapping = {
-        ['<C-Space>'] = cmp.mapping.complete(),
-        ['<CR>'] = cmp.mapping.confirm({ select = true }),
-    },
-    sources = cmp.config.sources({
-        { name = 'nvim_lsp' },
-        { name = 'luasnip' },
-        { name = 'buffer' },
-        { name = 'path' },
-    }),
-})
-
-
 -- Terminal
 require('toggleterm').setup({
     direction = 'horizontal',
@@ -440,6 +436,7 @@ end
 -- Python LSP setup
 local python_path = "python"
 
+-- Deal with venvs
 local poetry_lock = vim.fn.glob("poetry.lock")
 if vim.fn.empty(poetry_lock) == 0 then
     -- Get the Poetry environment path
@@ -504,6 +501,19 @@ lspconfig.rust_analyzer.setup({
         }
     }
 })
+
+
+-- Test
+
+require("neotest").setup({
+  adapters = {
+    require("neotest-python"),
+    require("neotest-rust"),
+    require("neotest-minitest"),
+    require("neotest-vitest")
+  }
+})
+
 
 -- WhichKey setup
 wk = require("which-key")
@@ -582,7 +592,6 @@ wk.add({
     { ";ss", "<cmd>grep<CR>", desc = "Search for symbol" },
     { ";sw", "<cmd>cwindow<CR>", desc = "Cwindow Size" },
     { ";t", group = "Test" },
-    { ";tf", "<cmd>TestFile<CR>", desc = "Test File" },
     { ";tg", "<cmd>TestVisit<CR>", desc = "Test Visit" },
     { ";tl", "<cmd>TestLast<CR>", desc = "Test Last" },
     { ";ts", "<cmd>TestSuite<CR>", desc = "Test Suite" },
