@@ -38,6 +38,9 @@ pb:
 	mkdir -p ~/bin
 	ln -s $(PWD)/pb ~/bin/pb
 
+nerdfonts:
+	./install-nerd-fonts.sh
+
 packages:
 ifeq ($(UNAME),Linux)
 	sudo snap install yq
