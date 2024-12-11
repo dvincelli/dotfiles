@@ -4,6 +4,7 @@ apt:
   - ripgrep
   - xclip
   - kubetail
+  - fd-find
 
 snap:
   - yq
@@ -17,3 +18,4 @@ brew:
   - ripgrep
   - neovim
   - pyenv
+  - fd
