@@ -1,9 +1,27 @@
-export EDITOR=nvim
-export LSCOLORS=Gxfxcxdxbxegedabagacad
-export FZF_DEFAULT_COMMAND='rg -l ""'
-export FZF_DEFAULT_OPTS='
---color fg:188,bg:233,hl:103,fg+:222,bg+:234,hl+:104
---color info:183,prompt:110,spinner:107,pointer:167,marker:215
-'
+if [[ -r /etc/zsh/zshrc.default.inc.zsh ]]; then
+  source /etc/zsh/zshrc.default.inc.zsh
+fi
 
-source .zshrc.wrappers.sh
+
+fpath=($HOME/.zsh-completions $fpath)
+
+zstyle ':completion:*' use-cache on
+autoload -U compinit; compinit
+
+[ -f /opt/dev/sh/chruby/chruby.sh ] && { type chruby >/dev/null 2>&1 || chruby () { source /opt/dev/sh/chruby/chruby.sh; chruby "$@"; } }
+
+[ -x /opt/homebrew/bin/brew ] && eval $(/opt/homebrew/bin/brew shellenv)
+
+if [[ -d $HOME/.pyenv ]]; then
+  export PATH="$HOME/.pyenv/bin:$PATH"
+  eval "$(pyenv init -)"
+fi
+
+autoload -U edit-command-line
+zle -N edit-command-line
+bindkey '^Xe' edit-command-line
+bindkey '^X^e' edit-command-line
+
+for file in ~/.zshrc.d/*; do
+  source $file
+done

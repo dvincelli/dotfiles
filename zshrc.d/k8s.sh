@@ -1,28 +1,23 @@
 function kctx() {
     if [[ -n "$1" ]]; then
         kubectl config use-context "$1"
+        export K8S_CONTEXT="$1"
     else
         ctx=$(kubectl config get-contexts -o name | fzf)
         kubectl config use-context "$ctx"
+        export K8S_CONTEXT="$ctx"
     fi
 }
 
 function kns() {
-    set -eo pipefail
     if [[ -n "$1" ]]; then
         ns="$1"
     else
-        ns=$(kubectl get namespace -o name | sed -e 's|namespace/||' | fzf)
+        ns=$(kubectl get namespace -o name | fzf | sed -e 's/namespace\///')
     fi
 
-    echo $ns
-
     kubectl config set-context --current --namespace="$ns"
-}
-
-function kdel() {
-    pod=$(kubectl get all -o name | fzf)
-    kubectl delete "$pod"
+    export K8S_NAMESPACE="$ns"
 }
 
 function kpod() {
@@ -70,9 +65,17 @@ function kexec() {
     kubectl exec -ti "$pod" "$*"
 }
 
-function kprompt() {
-    ctx=$(kubectl config current-context 2>/dev/null)
-    ns=$(kubectl config get-contexts "$ctx" --no-headers 2>/dev/null| awk '{ print $5 }')
-    cluster=$(kubectl config get-contexts "$ctx" --no-headers 2>/dev/null| awk '{ print $3 }')
-    echo "[k8s:$ns@$cluster]"
+function kps() {
+    ctx=$(grep '^current-context: ' ${KUBE_CONFIG:-$HOME/.kube/config} | cut -d ' '  -f2)
+    export K8S_CONTEXT="$ctx"
+
+    ns=$(grep '^  namespace: ' ${KUBE_CONFIG:-$HOME/.kube/config} | cut -d ' '  -f2)
+    export K8S_NAMESPACE="$ns"
+
+    echo "kubectl --context $ctx --namespace $ns $*"
 }
+
+# if kubectl is in the path - enable completions
+if kubectl 2>&1 >/dev/null; then
+  source <(kubectl completion zsh)
+fi
