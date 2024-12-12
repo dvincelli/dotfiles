@@ -38,6 +38,11 @@ pb:
 nerdfonts:
 	./install-nerd-fonts.sh
 
+zsh:
+	ln -sf $(PWD)/zshrc ~/.zshrc
+	ln -sf $(PWD)/zshrc.d ~/.zshrc.d
+
+
 packages:
 ifeq ($(UNAME),Linux)
 	sudo snap install yq

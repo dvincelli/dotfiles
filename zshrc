@@ -2,7 +2,6 @@ if [[ -r /etc/zsh/zshrc.default.inc.zsh ]]; then
   source /etc/zsh/zshrc.default.inc.zsh
 fi
 
-
 fpath=($HOME/.zsh-completions $fpath)
 
 zstyle ':completion:*' use-cache on
