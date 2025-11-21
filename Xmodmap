@@ -1,0 +1,5 @@
+
+remove mod4 = Super_L
+keycode 133 = Control_L
+add control = Control_L
+pointer = 3 2 1
