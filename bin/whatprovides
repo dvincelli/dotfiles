@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# usage: ./whatprovides.sh /path/to/file
+
+FILE="$1"
+[ -z "$FILE" ] && { echo "Usage: $0 /path/to/file"; exit 1; }
+
+dpkg -S "$FILE" 2>/dev/null || echo "Not owned by any installed package"
