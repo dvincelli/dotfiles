@@ -1,0 +1,234 @@
+#!/usr/bin/env bash
+# auctl - PipeWire audio helper (wpctl + fzf)
+#
+# Commands:
+#   auctl output | out              Pick output device (sink)
+#   auctl input  | in               Pick input device (source)
+#
+#   auctl up   [(-i|--input|in)] [STEP]
+#       Volume +STEP% (default 5) on output (default) or input.
+#
+#   auctl down [(-i|--input|in)] [STEP]
+#       Volume -STEP% (default 5) on output (default) or input.
+#
+#   auctl mute [(-i|--input|in)] [0|1|toggle]
+#       Mute/unmute output (default) or input. Default action: toggle.
+#
+#   auctl volume [(-i|--input|in)] [VAL]
+#       Show or set volume for output (default) or input.
+#       VAL examples: 50   50%   0.5
+#
+#   auctl status
+#       Show wpctl status.
+#
+#   auctl help
+#       Show this help.
+
+usage() {
+  cat <<'EOF'
+auctl - PipeWire audio helper (wpctl + fzf)
+
+Usage:
+  auctl output | out
+      Pick output device (sink).
+
+  auctl input | in
+      Pick input device (source).
+
+  auctl up [(-i|--input|in)] [STEP]
+      Volume +STEP% (default 5) on output (default) or input.
+
+  auctl down [(-i|--input|in)] [STEP]
+      Volume -STEP% (default 5) on output (default) or input.
+
+  auctl mute [(-i|--input|in)] [0|1|toggle]
+      Mute/unmute output (default) or input. Default action: toggle.
+
+  auctl volume [(-i|--input|in)] [VAL]
+      Show or set volume for output (default) or input.
+      VAL examples: 50   50%   0.5
+
+  auctl status
+      Show wpctl status.
+
+  auctl help
+      Show this help.
+EOF
+  exit 1
+}
+
+# kind: "output" or "input"
+pick_node() {
+  local kind="$1"
+  local header_from header_to
+
+  case "$kind" in
+  output | out)
+    header_from="Sinks:"
+    header_to="Sink endpoints:"
+    ;;
+  input | in)
+    header_from="Sources:"
+    header_to="Source endpoints:"
+    ;;
+  *)
+    echo "pick_node: invalid kind '$kind'" >&2
+    exit 1
+    ;;
+  esac
+
+  local block selection id
+  block="$(
+    wpctl status |
+      awk "/$header_from/{flag=1;next}/$header_to/{flag=0}flag"
+  )"
+
+  selection="$(
+    printf '%s\n' "$block" |
+      grep -E '[0-9]+\.' |
+      sed 's/^[[:space:]]*//'
+  )"
+
+  [ -z "$selection" ] && {
+    echo "auctl: no $kind entries found" >&2
+    exit 1
+  }
+
+  selection="$(
+    printf '%s\n' "$selection" |
+      fzf --prompt="Select $kind > " --ansi
+  )" || exit 0
+
+  id="$(sed -E 's/^[^0-9]*([0-9]+)\..*/\1/' <<<"$selection")"
+
+  [ -z "$id" ] && {
+    echo "auctl: failed to parse $kind id from selection" >&2
+    exit 1
+  }
+
+  printf '%s\n' "$id"
+}
+
+default_token() {
+  case "$1" in
+  input | in) echo "@DEFAULT_AUDIO_SOURCE@" ;;
+  *) echo "@DEFAULT_AUDIO_SINK@" ;;
+  esac
+}
+
+normalize_volume_arg() {
+  local v="$1"
+  case "$v" in
+  *% | 0.* | 1.*)
+    echo "$v"
+    ;;
+  *)
+    # plain number -> percent
+    echo "${v}%"
+    ;;
+  esac
+}
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  set -euo pipefail
+
+  cmd="${1:-help}"
+  shift || true
+
+  case "$cmd" in
+  output | out)
+    id="$(pick_node output)"
+    wpctl set-default "$id"
+    ;;
+
+  input | in)
+    id="$(pick_node input)"
+    wpctl set-default "$id"
+    ;;
+
+  up)
+    target="out"
+    case "${1-}" in
+    -i | --input | in)
+      target="in"
+      shift
+      ;;
+    esac
+    step="${1:-5}"
+    tok="$(default_token "$target")"
+    wpctl set-volume "$tok" "${step}%+"
+    ;;
+
+  down)
+    target="out"
+    case "${1-}" in
+    -i | --input | in)
+      target="in"
+      shift
+      ;;
+    esac
+    step="${1:-5}"
+    tok="$(default_token "$target")"
+    wpctl set-volume "$tok" "${step}%-"
+    ;;
+
+  mute)
+    target="out"
+    case "${1-}" in
+    -i | --input | in)
+      target="in"
+      shift
+      ;;
+    esac
+    action="${1:-toggle}"
+    tok="$(default_token "$target")"
+    wpctl set-mute "$tok" "$action"
+    ;;
+  unmute)
+    target="out"
+    case "${1-}" in
+    -i | --input | in)
+      target="in"
+      shift
+      ;;
+    esac
+    action="${1:-0}"
+    tok="$(default_token "$target")"
+    wpctl set-mute "$tok" "$action"
+    ;;
+
+  volume | vol)
+    target="out"
+    case "${1-}" in
+    -i | --input | in)
+      target="in"
+      shift
+      ;;
+    esac
+    tok="$(default_token "$target")"
+    if [ $# -gt 0 ]; then
+      val="$(normalize_volume_arg "$1")"
+      wpctl set-volume "$tok" "$val"
+    else
+      wpctl get-volume "$tok"
+    fi
+    ;;
+
+  status)
+    wpctl status
+    ;;
+
+  help | --help | -h)
+    usage
+    ;;
+
+  *)
+    echo "auctl: unknown command: $cmd" >&2
+    usage
+    ;;
+  esac
+
+fi
+
+alias mute='auctl mute'
+alias vol='auctl volume'

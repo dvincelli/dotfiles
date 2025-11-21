@@ -1,0 +1,147 @@
+#!/usr/bin/env bash
+# gssh: ssh to the GCE node backing a k8s pod or node name.
+
+set -euo pipefail
+
+usage() {
+  cat <<EOF
+Usage: gssh [-c CONTEXT] [-n NAMESPACE] TARGET [-- extra gcloud args...]
+
+TARGET:
+  - Kubernetes pod name (default; will resolve to its node)
+  - Kubernetes node name (if it exists as a Node)
+
+Options:
+  -c, --context   kubectl context to use
+  -n, --namespace namespace for pod lookup (default: kubectl's current ns)
+  -h, --help      show this help
+
+Any arguments after '--' are passed through to 'gcloud compute ssh'.
+EOF
+  exit "${1:-1}"
+}
+
+KCTX=""
+KNS=""
+TARGET=""
+GCLOUD_ARGS=()
+
+# --- parse args ---
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -c|--context)
+      KCTX="$2"; shift 2 ;;
+    -n|--namespace)
+      KNS="$2"; shift 2 ;;
+    -h|--help)
+      usage 0 ;;
+    --)
+      shift
+      GCLOUD_ARGS+=("$@")
+      break ;;
+    -*)
+      echo "Unknown option: $1" >&2
+      usage 1 ;;
+    *)
+      if [[ -z "$TARGET" ]]; then
+        TARGET="$1"
+        shift
+      else
+        echo "Unexpected argument: $1" >&2
+        usage 1
+      fi
+      ;;
+  esac
+done
+
+[[ -z "${TARGET:-}" ]] && { echo "TARGET is required"; usage 1; }
+
+# --- kubectl base ---
+KUBECTL=(kubectl)
+[[ -n "$KCTX" ]] && KUBECTL+=(--context "$KCTX")
+# namespace will be added only for pod operations
+
+# --- detect if TARGET is node or pod ---
+is_node=false
+if "${KUBECTL[@]}" get node "$TARGET" >/dev/null 2>&1; then
+  is_node=true
+else
+  # check pod
+  POD_ARGS=("${KUBECTL[@]}")
+  [[ -n "$KNS" ]] && POD_ARGS+=(--namespace "$KNS")
+  if ! "${POD_ARGS[@]}" get pod "$TARGET" >/dev/null 2>&1; then
+    echo "Error: '$TARGET' is neither a Node nor a Pod (in ns '${KNS:-<current>}' )." >&2
+    exit 1
+  fi
+fi
+
+NODE_NAME=""
+if $is_node; then
+  NODE_NAME="$TARGET"
+else
+  # resolve pod -> node
+  POD_ARGS=("${KUBECTL[@]}")
+  [[ -n "$KNS" ]] && POD_ARGS+=(--namespace "$KNS")
+  NODE_NAME="$(
+    "${POD_ARGS[@]}" get pod "$TARGET" -o jsonpath='{.spec.nodeName}'
+  )"
+  if [[ -z "$NODE_NAME" ]]; then
+    echo "Failed to resolve node for pod '$TARGET'." >&2
+    exit 1
+  fi
+fi
+
+# --- get node details ---
+NODE_JSON="$(
+  "${KUBECTL[@]}" get node "$NODE_NAME" -o json
+)"
+
+# providerID, e.g. gce://PROJECT/zone/instance
+PROVIDER_ID="$(printf '%s' "$NODE_JSON" | jq -r '.spec.providerID // ""')"
+
+PROJECT=""
+ZONE=""
+
+if [[ "$PROVIDER_ID" == gce://* ]]; then
+  # strip scheme
+  PATH_PART="${PROVIDER_ID#gce://}"        # PROJECT/zone/instance
+  PROJECT="${PATH_PART%%/*}"               # PROJECT
+  REST="${PATH_PART#*/}"                   # zone/instance
+  ZONE="${REST%%/*}"                       # zone
+fi
+
+# fallback to labels if needed
+if [[ -z "$ZONE" ]]; then
+  ZONE="$(printf '%s' "$NODE_JSON" | jq -r '.metadata.labels["topology.kubernetes.io/zone"] // ""')"
+fi
+if [[ -z "$ZONE" ]]; then
+  ZONE="$(printf '%s' "$NODE_JSON" | jq -r '.metadata.labels["failure-domain.beta.kubernetes.io/zone"] // ""')"
+fi
+
+# fallback project to gcloud config
+if [[ -z "$PROJECT" ]]; then
+  PROJECT="$(gcloud config get-value project 2>/dev/null || true)"
+fi
+
+if [[ -z "$PROJECT" || "$PROJECT" == "(unset)" ]]; then
+  echo "Could not determine GCP project (from providerID or gcloud config)." >&2
+  exit 1
+fi
+
+if [[ -z "$ZONE" || "$ZONE" == "(unset)" ]]; then
+  echo "Could not determine zone (from providerID or node labels)." >&2
+  exit 1
+fi
+
+# region if you ever need it
+REGION="${ZONE%-*}"
+
+# --- final command ---
+CMD=(gcloud compute ssh "$NODE_NAME" --project="$PROJECT" --zone="$ZONE")
+if ((${#GCLOUD_ARGS[@]})); then
+  CMD+=("${GCLOUD_ARGS[@]}")
+fi
+
+echo "-> ${CMD[*]}" >&2
+exec "${CMD[@]}"
+
