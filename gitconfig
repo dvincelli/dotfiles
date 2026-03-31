@@ -60,6 +60,20 @@ spush = stash push
 p = pull
 f = fetch
 hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
+# pick most recently used branches in fzf
+mru = "!f() { \
+        branch=$(git for-each-ref --sort=-committerdate refs/heads/ --format='%(refname:short)' | \
+        fzf --height 40% --reverse --border --prompt=\"Branch: \" \
+        --preview='git log -p {} | head -100'); \
+        [ -n \"$branch\" ] && git checkout \"$branch\"; \
+    }; f"
+last = !git log -5 --oneline
+search = "!f() { git log -S \"$1\"; }; f"
+# Open the current repository's remote URL in a browser (macOS/Linux)
+open = "!f() { \
+        url=$(git remote get-url origin | sed -E 's|^git@([^:]+):|https://\\1/|; s|\\.git$||'); \
+        open \"$url\"; \
+    }; f"
 
 [blame]
 coloring = repeatedLines
