@@ -1,18 +1,39 @@
 #!/bin/bash
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    if [[ -t 0 ]]; then
-        pbpaste
-    else
-        pbcopy
-    fi
+  if [[ -t 0 ]]; then
+    exec pbpaste
+  else
+    exec pbcopy
+  fi
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    if [[ -t 0 ]]; then
-        xclip -selection clipboard -o
+  # check for wayland and use wl-clipboard if available
+  if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+    if command -v wl-copy &>/dev/null && command -v wl-paste &>/dev/null; then
+      if [[ -t 0 ]]; then
+        exec wl-paste
+      else
+        exec wl-copy
+      fi
+      exit 0
     else
-        xclip -selection clipboard
+      echo "wl-clipboard is not installed. Please install it to use clipboard operations on Wayland."
+      exit 1
     fi
-else
-    echo "Your OS is not supported for this clipboard command."
+  fi
+
+  # fallback to xclip for X11
+  if ! command -v xclip &>/dev/null; then
+    echo "xclip is not installed. Please install it to use clipboard operations on Linux."
     exit 1
+  fi
+
+  if [[ -t 0 ]]; then
+    exec xclip -selection clipboard -o
+  else
+    exec xclip -selection clipboard
+  fi
+else
+  echo "Your OS is not supported for this clipboard command."
+  exit 1
 fi
