@@ -24,6 +24,10 @@ mysql:
 
 nvim:
 	ln -sf $(PWD)/nvim ~/.config/nvim
+	ln -sf $(PWD)/vimrc ~/.config/nvim/init.vim
+
+vim:
+	ln -sf $(PWD)/.vimrc ~/.vimrc
 
 gitprompt:
 	curl -L -s https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh > ~/.git-prompt.sh
@@ -43,14 +47,14 @@ zsh:
 	ln -sf $(PWD)/zshrc.d ~/.zshrc.d
 
 
-packages:
-ifeq ($(UNAME),Linux)
-	sudo snap install yq
-	yq -r '.snap[]' < packages.yaml | xargs -L1 sudo snap install
-	yq -r '.apt[]' < packages.yaml | xargs -L1 sudo apt install -y --no-install-recommends
-endif
-ifeq ($(UNAME),Darwin)
-	yq -r '.brew[]' < packages.yaml | xargs -L1 brew install
-endif
+#packages:
+#ifeq ($(UNAME),Linux)
+#	sudo snap install yq
+#	yq -r '.snap[]' < packages.yaml | xargs -L1 sudo snap install
+#	yq -r '.apt[]' < packages.yaml | xargs -L1 sudo apt install -y --no-install-recommends
+#endif
+#ifeq ($(UNAME),Darwin)
+#	yq -r '.brew[]' < packages.yaml | xargs -L1 brew install
+#endif
 
 .PHONY: all ackrc bashrc bin screenrc tmux mysql nvim rgignore nvm gitconfig pb packages gitprompt
