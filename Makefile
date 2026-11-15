@@ -24,10 +24,9 @@ mysql:
 
 nvim:
 	ln -sf $(PWD)/nvim ~/.config/nvim
-	ln -sf $(PWD)/vimrc ~/.config/nvim/init.vim
 
 vim:
-	ln -sf $(PWD)/.vimrc ~/.vimrc
+	ln -sf $(PWD)/vimrc ~/.vimrc
 
 gitprompt:
 	curl -L -s https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh > ~/.git-prompt.sh
