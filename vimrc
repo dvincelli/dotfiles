@@ -5,6 +5,9 @@ set nocompatible     " we don't need vi compatibility, give us all of vim
 
 set statusline=%F%m%r%h%w%=\ [%Y]\ [%{&ff}]\ [%04l,%04v]\ [%p%%]\ [%L]
 "set statusline=%F%m%r%h%w\ [%Y:%{&ff}]\ [A=\%03.3b]\ [0x=\%02.2B]\ [%l/%L,%v][%p%%]\ %{fugitive#statusline()}
+set laststatus=2 " make the last line where the status is two lines deep so you can see status always
+"set cmdheight=2
+
 
 set lazyredraw		" don't redraw when running macros
 set ttyfast		" fast local tty
@@ -29,7 +32,7 @@ set incsearch		" incremental search (jump to partial match)
 set smartcase		" if I put case variation in my search, it's cause I care
 set showmatch		" show matching brackets
 
-set scrolloff=8		" keep at least this many lines above/below cursor
+set scrolloff=5		" keep at least this many lines above/below cursor
 set sidescrolloff=5	" keep at least this many columns left/right of cursor
 
 " use rg instead of grep
@@ -54,7 +57,7 @@ set showmode		" vim lets us know which mode we're in
 set showcmd		" show partial command in last line of screen
 set shortmess+=rnixnm	" shorter messages
 
-"set nottybuiltin	" maybe not?
+"set nottybuiltin	" skips internal termcap, uses only system termcap
 
 " mouse support
 set title		" setup my title
@@ -107,6 +110,7 @@ match OverLength /\%81v.*/
 " show trailing spaces, tabs
 set list
 set listchars=tab:_\ ,trail:_
+
 " Shortcut to rapidly toggle `set list`
 nmap <leader><esc> :set list!<CR>
 
@@ -119,7 +123,7 @@ if (&t_Co >= 256)
   if exists("syntax_on")
     syntax reset
   endif
-  silent! colorscheme darkblue " sonokai
+  silent! colorscheme darkblue
   " If not installed, display warning message
   if v:errmsg != ''
     echohl WarningMsg
@@ -128,30 +132,15 @@ if (&t_Co >= 256)
   endif
 endif
 
-set laststatus=2 " make the last line where the status is two lines deep so you can see status always
-
 " fix for broken or slow syntax highlighting
 set re=0
 
-" Give more space for displaying messages.
-set cmdheight=2
-
-" asynccomplete.vim
 set completeopt+=noinsert,menuone,noselect
 
 inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <expr> <cr>    pumvisible() ? asyncomplete#close_popup() : "\<cr>"
 inoremap <expr> <cr> pumvisible() ? asyncomplete#close_popup() . "\<cr>" : "\<cr>"
-
-"if has('nvim')
-"  imap <c-space> <Plug>(asyncomplete_force_refresh)
-"else
-"  imap <c-@> <Plug>(asyncomplete_force_refresh)
-"end
-
-" FZF
-let $FZF_DEFAULT_COMMAND = 'rg --files --hidden --follow --glob "!.git/*" --max-filesize 1M'
 
 " vim-test
 set timeoutlen=500
@@ -182,9 +171,9 @@ if has("autocmd")
   autocmd FileType htmldjango set formatoptions+=tl
   autocmd FileType htmldjango set noai nosi et sw=4 ts=4
 
-  " for Perl programming, have things in braces indenting themselves:
-  autocmd FileType perl set smartindent
-
   " for CSS, also have things in braces indented:
   autocmd FileType css set smartindent
+
+  "
+  autocmd FileType python set ai si et sw=4 ts=4
 endif
