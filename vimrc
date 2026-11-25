@@ -16,8 +16,6 @@ scriptencoding utf-8 " this script is utf-8
 
 set nocompatible     " we don't need vi compatibility, give us all of vim
 
-set statusline=%F%m%r%h%w%=\ [%Y]\ [%{&ff}]\ [%04l,%04v]\ [%p%%]\ [%L]
-"set statusline=%F%m%r%h%w\ [%Y:%{&ff}]\ [A=\%03.3b]\ [0x=\%02.2B]\ [%l/%L,%v][%p%%]\ %{fugitive#statusline()}
 set laststatus=2 " make the last line where the status is two lines deep so you can see status always
 "set cmdheight=2
 
@@ -93,7 +91,7 @@ set wildchar=<tab>	" complete on tab
 set wildignore+=.git,*.pyc,*.egg,./data/**,./build/**,./dist/**,./*.egg-info/**,./*.egg/,data/*,build/*,dist/*,*.egg-info,*.egg/**
 
 " change default auto-complete menu colors
-highlight Pmenu ctermfg=1 ctermbg=4 guibg=grey30
+"highlight Pmenu ctermfg=1 ctermbg=4 guibg=grey30
 
 " do not complete on these
 set suffixes+=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.cmi,.cmo,.swo,.pyc,TAGS
@@ -105,6 +103,41 @@ set path=~/src/**
 let g:netrw_list_hide = ".*\.pyc$,^darcs.*,.*patch$,_darcs,*.egg-info,\.svn,\.hg,\.git,\.swp,\.swo,_build"
 let g:netrw_noretmap = 1 " do not make double click return to netrw browser
 let g:netrw_use_noswf = 1
+let g:netrw_keepdir = 0    " ensures actions happens in dir
+let g:netrw_liststyle = 3  " tree view instead of flat list
+let g:netrw_banner = 0     " no giant banner
+nnoremap - :Explore<CR>
+
+" Safe recursive delete with a confirmation prompt
+function! NetrwSafeDelete()
+    let l:item = expand('<cfile>')
+    if empty(l:item) || l:item ==# './' || l:item ==# '../'
+        return
+    endif
+
+    let l:path = b:netrw_curdir . '/' . l:item
+
+    if isdirectory(l:path)
+        if confirm("Recursively delete directory '" . l:item . "'?", "&Yes\n&No", 2) == 1
+            call system('rm -rf ' . shellescape(l:path))
+            execute "normal \<C-l>"
+        endif
+    else
+        call delete(l:path)
+        execute "normal \<C-l>"
+    endif
+endfunction
+
+
+
+augroup NetrwCustom
+    autocmd!
+    " Persistent cheat sheet in the statusline (only when inside netrw)
+    autocmd FileType netrw setlocal statusline=\ [%%]\ New\ File\ \ [d]\ New\ Dir\ \ [R]\ Rename\ \ [D]\ Delete\ \ [mf]\ Mark\ \ [-]\ Up\ %=\ %{b:netrw_curdir}\
+    " Override 'D' with smart single-file / prompted-directory delete
+    autocmd FileType netrw nnoremap <buffer> <silent> D :call NetrwSafeDelete()<CR>
+augroup END
+
 
 syntax on
 filetype plugin on
@@ -161,25 +194,90 @@ nmap <leader>S :grepadd! <cword><cr>:cwindow<cr>
 " fix for broken or slow syntax highlighting
 set re=0
 
-set completeopt+=noinsert,menuone,noselect
+" completion
+set completeopt=menuone,noinsert,noselect
 
-inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+function! SmartTab()
+    if pumvisible()
+        return "\<C-n>"
+    endif
+    let col = col('.') - 1
+    if !col || getline('.')[col - 1] !~ '\k'
+        return "\<Tab>"
+    endif
+    " Use omni-completion if the filetype supports it, otherwise keyword completion
+    if &omnifunc != ''
+        return "\<C-x>\<C-o>"
+    else
+        return "\<C-n>"
+    endif
+endfunction
+
+inoremap <expr> <Tab> SmartTab()
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-inoremap <expr> <cr>    pumvisible() ? asyncomplete#close_popup() : "\<cr>"
-inoremap <expr> <cr> pumvisible() ? asyncomplete#close_popup() . "\<cr>" : "\<cr>"
+inoremap <expr> <cr>    pumvisible() ? "\<C-y>" : "\<cr>"
 
 " vim-test
 set timeoutlen=500
 set timeout
 
+" git status
+" --- no-plugin git statusline (fast + fail-safe) ---
+if executable('git')
+  " Run git in the buffer's own directory without changing Vim's cwd.
+  function! s:GitUpdate()
+    let b:git_branch = ''
+    let b:git_dirty  = 0
+    let l:dir = expand('%:p:h:S')
+    let l:out = system('git -C ' . l:dir . ' branch --show-current 2>/dev/null')
+    if v:shell_error == 0
+      let b:git_branch = trim(l:out)
+    endif
+    let l:out = system('git -C ' . l:dir . ' status --porcelain 2>/dev/null')
+    if v:shell_error == 0
+      let b:git_dirty = (l:out !=# '')
+    endif
+  endfunction
+
+ function! GitStatusline()
+    if !exists('b:git_branch') | call s:GitUpdate() | endif
+    if b:git_branch ==# '' | return '' | endif
+    return ' [⎇ ' . b:git_branch . (b:git_dirty ? ' ✗' : ' ✓') . ']'
+  endfunction
+
+  " Refresh only on events that actually change the state.
+  augroup GitStatusline
+    au!
+    au BufEnter,BufWritePost,FocusGained,ShellCmdPost * call s:GitUpdate()
+  augroup END
+else
+ function! GitStatusline()
+    return ''
+  endfunction
+endif
+
+" %F Full path to the file in the buffer ~/src
+" %f relative path to the file in the buffer
+" %m modified flag: [+]
+" %r readonly flag: [RO]
+" %h help buffer flag: [help]
+" %w Preview window flag: [preview]
+" = seperation point between left and right aligned items
+" %Y Type of file in the buffer
+" %{&ff} line ending style
+" %l,%v line, columne
+" %p percentage through file in lines as in CTRL_G
+" %L Number of lines in the buffer
+set statusline=%F%m%r%h%w%{GitStatusline()}%=\ [%Y]\ [%{&ff}]\ [%04l,%04v]\ [%p%%]\ [%L]
+
 if has("autocmd")
+
   augroup templates
     autocmd!
     autocmd BufRead,BufNewFile *.mtpl,*.mako  setfiletype html
     autocmd BufRead,BufNewFile *.twig         setfiletype htmldjango
     autocmd BufRead,BufNewFile *.jinja,*.j2,*.jinja2 setfiletype htmldjango
   augroup END
-
 
   augroup haskell
     autocmd!
