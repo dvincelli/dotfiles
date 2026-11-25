@@ -1,13 +1,19 @@
 " Enable for debugging...
 "profile start ~/vim-profile.log
 
+" Prefer utf-8, respect bom encodings
+set encoding=utf-8
+set fileencodings=ucs-bom,utf-8,latin1
+set fileencoding=utf-8
+
+scriptencoding utf-8 " this script is utf-8
+
 set nocompatible     " we don't need vi compatibility, give us all of vim
 
 set statusline=%F%m%r%h%w%=\ [%Y]\ [%{&ff}]\ [%04l,%04v]\ [%p%%]\ [%L]
 "set statusline=%F%m%r%h%w\ [%Y:%{&ff}]\ [A=\%03.3b]\ [0x=\%02.2B]\ [%l/%L,%v][%p%%]\ %{fugitive#statusline()}
 set laststatus=2 " make the last line where the status is two lines deep so you can see status always
 "set cmdheight=2
-
 
 set lazyredraw		" don't redraw when running macros
 set ttyfast		" fast local tty
@@ -18,7 +24,8 @@ set noerrorbells
 
 set history=1000	" keep some history
  
-set clipboard+=unnamedplus " Uses OS clipboard (shares clipboard accross vim instances)
+set guioptions=a
+set clipboard=unnamed,unnamedplus " Uses OS clipboard (shares clipboard accross vim instances)
 
 set backspace=indent,eol,start " backspace over autoident, EOL, and start of insert
 
@@ -62,11 +69,12 @@ set shortmess+=rnixnm	" shorter messages
 " mouse support
 set title		" setup my title
 set mouse=a		" enable mouse in all modes
+set ttymouse=xterm2	" scroll, select
 
 " Tell vim to remember certain things when we exit
 " '50  :  marks will be remembered for up to 50 previously edited files
 " "100 :  will save up to 100 lines for each register
-" :500  :  up to 500 lines of command-line history will be remembered
+" :1000  :  up to 1000 lines of command-line history will be remembered
 " %    :  saves and restores the buffer list
 " n... :  where to save the viminfo files
 "
@@ -109,8 +117,8 @@ match OverLength /\%81v.*/
 
 " show trailing spaces, tabs
 set list
-set listchars=tab:_\ ,trail:_
-
+set listchars=tab:\ \ ,trail:\ ,nbsp:\ 
+"test:	   	 ....    
 " Shortcut to rapidly toggle `set list`
 nmap <leader><esc> :set list!<CR>
 
@@ -118,11 +126,16 @@ nmap <leader><esc> :set list!<CR>
 nmap <leader>s :grep! <cword><cr>:cwindow<cr>
 nmap <leader>S :grepadd! <cword><cr>:cwindow<cr>
 
+if has('termguicolors')
+    set termguicolors
+endif
+
 " set colorscheme if 256 colors are available
 if (&t_Co >= 256)
   if exists("syntax_on")
     syntax reset
   endif
+  let v:errmsg = ''
   silent! colorscheme darkblue
   " If not installed, display warning message
   if v:errmsg != ''
@@ -131,6 +144,9 @@ if (&t_Co >= 256)
     echohl None
   endif
 endif
+
+highlight SpecialKey ctermfg=NONE ctermbg=236 guifg=NONE guibg=#21222C
+highlight NonText    ctermbg=236 guibg=#21222C
 
 " fix for broken or slow syntax highlighting
 set re=0
@@ -174,6 +190,33 @@ if has("autocmd")
   " for CSS, also have things in braces indented:
   autocmd FileType css set smartindent
 
-  "
-  autocmd FileType python set ai si et sw=4 ts=4
+  augroup python
+    autocmd!
+    autocmd FileType python setlocal
+        \ et shiftwidth=4 tabstop=4
+        \ commentstring="#\ %s"
+        \ foldmethod=indent
+   augroup END
+
+  augroup haskell
+    autocmd!
+    autocmd FileType haskell setlocal
+        \ noet shiftwidth=4 tabstop=4
+        \ commentstring="--\ %s"
+        \ foldmethod=syntax
+  augroup END
+  
+  augroup ocaml
+    autocmd!
+    autocmd FileType ocaml setlocal
+        \ noet shiftwidth=4 tabstop=4
+        \ commentstring="(*\ %s\ *)"
+        \ foldmethod=syntax
+  augroup END
+
+  " autoreload vimrc edits
+  augroup reload_vimrc
+    autocmd!
+    autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
+  augroup END
 endif
