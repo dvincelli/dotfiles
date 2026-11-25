@@ -270,61 +270,64 @@ endif
 " %L Number of lines in the buffer
 set statusline=%F%m%r%h%w%{GitStatusline()}%=\ [%Y]\ [%{&ff}]\ [%04l,%04v]\ [%p%%]\ [%L]
 
-if has("autocmd")
+augroup templates
+  autocmd!
+  autocmd BufRead,BufNewFile *.mtpl,*.mako  setfiletype html
+  autocmd BufRead,BufNewFile *.twig         setfiletype htmldjango
+  autocmd BufRead,BufNewFile *.jinja,*.j2,*.jinja2 setfiletype htmldjango
+augroup END
 
-  augroup templates
-    autocmd!
-    autocmd BufRead,BufNewFile *.mtpl,*.mako  setfiletype html
-    autocmd BufRead,BufNewFile *.twig         setfiletype htmldjango
-    autocmd BufRead,BufNewFile *.jinja,*.j2,*.jinja2 setfiletype htmldjango
-  augroup END
+augroup haskell
+  autocmd!
+  autocmd FileType haskell setlocal
+      \ noet shiftwidth=4 tabstop=4
+      \ commentstring="--\ %s"
+      \ foldmethod=syntax
+augroup END
 
-  augroup haskell
-    autocmd!
-    autocmd FileType haskell setlocal
-        \ noet shiftwidth=4 tabstop=4
-        \ commentstring="--\ %s"
-        \ foldmethod=syntax
-  augroup END
+augroup ocaml
+  autocmd!
+  autocmd FileType ocaml setlocal
+      \ noet shiftwidth=4 tabstop=4
+      \ commentstring="(*\ %s\ *)"
+      \ foldmethod=syntax
+augroup END
 
-  augroup ocaml
-    autocmd!
-    autocmd FileType ocaml setlocal
-        \ noet shiftwidth=4 tabstop=4
-        \ commentstring="(*\ %s\ *)"
-        \ foldmethod=syntax
-  augroup END
+augroup javascript
+  autocmd!
+  autocmd FileType javascript,typescript setlocal
+      \ et shiftwidth=2 tabstop=2
+      \ commentstring="//\ %s"
+      \ foldmethod=syntax
+augroup END
 
-  augroup javascript
-    autocmd!
-    autocmd FileType javascript,typescript setlocal
-        \ et shiftwidth=2 tabstop=2
-        \ commentstring="//\ %s"
-        \ foldmethod=syntax
-  augroup END
+augroup rust
+  autocmd!
+  autocmd FileType rust setlocal
+      \ et shiftwidth=4 tabstop=4
+      \ commentstring="//\ %s"
+      \ foldmethod=syntax
+augroup END
 
-  augroup rust
-    autocmd!
-    autocmd FileType rust setlocal
-        \ et shiftwidth=4 tabstop=4
-        \ commentstring="//\ %s"
-        \ foldmethod=syntax
-  augroup END
+augroup c
+  autocmd!
+  autocmd FileType c setlocal
+      \ et shiftwidth=4 tabstop=4
+      \ commentstring="/*\ %s\ */"
+      \ foldmethod=syntax
+augroup END
 
-  augroup c
-    autocmd!
-    autocmd FileType c setlocal
-        \ et shiftwidth=4 tabstop=4
-        \ commentstring="/*\ %s\ */"
-        \ foldmethod=syntax
-  augroup END
+augroup GitCommitDiff
+  au!
+  " Fires when Vim detects the commit message buffer
+  au FileType gitcommit DiffGitCached | wincmd J
+augroup END
 
-  " autoreload vimrc edits
-  augroup reload_vimrc
-    autocmd!
-    autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
-  augroup END
-endif
+" autoreload vimrc edits
+augroup reload_vimrc
+  autocmd!
+  autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
+augroup END
 
 " Conditional include of ~/.vimrc.local
 if filereadable(expand("~/.vimrc.local"))
