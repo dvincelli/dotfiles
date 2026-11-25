@@ -1,3 +1,9 @@
+" This vimrc is intended to run on a stock reasonably modern version of plain
+" VIM like Vim classic, vim 8.x or vim 9.x - it depends on no plugins
+" intentionally, it also expects a modern version of XTerm with truecolor and
+" mouse support. It is intentionally avoiding languageservers for the time
+" being.
+
 " Enable for debugging...
 "profile start ~/vim-profile.log
 
@@ -23,7 +29,7 @@ set t_vb=
 set noerrorbells
 
 set history=1000	" keep some history
- 
+
 set guioptions=a
 set clipboard=unnamed,unnamedplus " Uses OS clipboard (shares clipboard accross vim instances)
 
@@ -104,37 +110,15 @@ syntax on
 filetype plugin on
 filetype indent on
 
-" hightlight espaces at end of lines
-highlight WhitespaceEOL ctermbg=red guibg=red
-match WhitespaceEOL /\s\+$/
-
-" This will highlight spaces before a tab:
-highlight RedundantSpaces ctermbg=red guibg=red
-match RedundantSpaces /\s\+$\| \+\ze\t/
-
-highlight OverLength ctermbg=darkred ctermfg=white guibg=#FFD9D9
-match OverLength /\%81v.*/
-
-" show trailing spaces, tabs
-set list
-set listchars=tab:\ \ ,trail:\ ,nbsp:\ 
-"test:	   	 ....    
-" Shortcut to rapidly toggle `set list`
-nmap <leader><esc> :set list!<CR>
-
-" grep helpers
-nmap <leader>s :grep! <cword><cr>:cwindow<cr>
-nmap <leader>S :grepadd! <cword><cr>:cwindow<cr>
-
-if has('termguicolors')
+ if has('termguicolors')
     set termguicolors
-endif
-
+  endif
 " set colorscheme if 256 colors are available
 if (&t_Co >= 256)
-  if exists("syntax_on")
-    syntax reset
-  endif
+
+  "if exists("syntax_on")
+  "  syntax reset
+  "endif
   let v:errmsg = ''
   silent! colorscheme darkblue
   " If not installed, display warning message
@@ -145,8 +129,34 @@ if (&t_Co >= 256)
   endif
 endif
 
+" This belongs after the colorscheme is set
 highlight SpecialKey ctermfg=NONE ctermbg=236 guifg=NONE guibg=#21222C
 highlight NonText    ctermbg=236 guibg=#21222C
+"test:	   	 ....    test 1,2,3   
+
+" hightlight espaces at end of lines
+highlight OverLength ctermbg=darkred guibg=darkred
+match OverLength /\%81v.*/
+
+" hightlight espaces at end of lines
+highlight WhitespaceEOL ctermbg=darkred guibg=darkred
+match WhitespaceEOL /\s\+$/
+
+" This will highlight spaces before a tab:
+highlight RedundantSpaces ctermbg=darkred guibg=darkred
+match RedundantSpaces /\s\+$\| \+\ze\t/
+
+" show trailing spaces, tabs
+set list
+set listchars=tab:\ \ ,trail:\ ,nbsp:\ 
+"test:	   	 ....    test 1,2,3
+
+" Shortcut to rapidly toggle `set list`
+nmap <leader><esc> :set list!<CR>
+
+" grep helpers
+nmap <leader>s :grep! <cword><cr>:cwindow<cr>
+nmap <leader>S :grepadd! <cword><cr>:cwindow<cr>
 
 " fix for broken or slow syntax highlighting
 set re=0
@@ -162,41 +172,14 @@ inoremap <expr> <cr> pumvisible() ? asyncomplete#close_popup() . "\<cr>" : "\<cr
 set timeoutlen=500
 set timeout
 
-" Conditional include of ~/.vimrc.local
-if filereadable(expand("~/.vimrc.local"))
-  source ~/.vimrc.local	
-endif
-
 if has("autocmd")
-  " mako templates
-  au BufWinEnter *.mtpl setfiletype htmlmako
-  au! BufRead,BufNewFile *.mako setfiletype htmlmako
-  au BufWinEnter *.mako setfiletype htmlmako
-
-  " twig templates
-  au! BufRead,BufNewFile *.twig setfiletype htmldjango
-  au BufWinEnter *.twig setfiletype htmldjango
-
-  " jinja templates
-  au! BufRead,BufNewFile *.jinja setfiletype htmldjango
-  au! BufRead,BufNewFile *.j2 setfiletype htmldjango
-  au! BufRead,BufNewFile *.jinja2 setfiletype htmldjango
-  au BufWinEnter *.jinja setfiletype htmldjango
-  au BufWinEnter *.j2 setfiletype htmldjango
-  au BufWinEnter *.jinja2 setfiletype htmldjango
-  autocmd FileType htmldjango set formatoptions+=tl
-  autocmd FileType htmldjango set noai nosi et sw=4 ts=4
-
-  " for CSS, also have things in braces indented:
-  autocmd FileType css set smartindent
-
-  augroup python
+  augroup templates
     autocmd!
-    autocmd FileType python setlocal
-        \ et shiftwidth=4 tabstop=4
-        \ commentstring="#\ %s"
-        \ foldmethod=indent
-   augroup END
+    autocmd BufRead,BufNewFile *.mtpl,*.mako  setfiletype html
+    autocmd BufRead,BufNewFile *.twig         setfiletype htmldjango
+    autocmd BufRead,BufNewFile *.jinja,*.j2,*.jinja2 setfiletype htmldjango
+  augroup END
+
 
   augroup haskell
     autocmd!
@@ -205,7 +188,7 @@ if has("autocmd")
         \ commentstring="--\ %s"
         \ foldmethod=syntax
   augroup END
-  
+
   augroup ocaml
     autocmd!
     autocmd FileType ocaml setlocal
@@ -214,9 +197,38 @@ if has("autocmd")
         \ foldmethod=syntax
   augroup END
 
+  augroup javascript
+    autocmd!
+    autocmd FileType javascript,typescript setlocal
+        \ et shiftwidth=2 tabstop=2
+        \ commentstring="//\ %s"
+        \ foldmethod=syntax
+  augroup END
+
+  augroup rust
+    autocmd!
+    autocmd FileType rust setlocal
+        \ et shiftwidth=4 tabstop=4
+        \ commentstring="//\ %s"
+        \ foldmethod=syntax
+  augroup END
+
+  augroup c
+    autocmd!
+    autocmd FileType c setlocal
+        \ et shiftwidth=4 tabstop=4
+        \ commentstring="/*\ %s\ */"
+        \ foldmethod=syntax
+  augroup END
+
   " autoreload vimrc edits
   augroup reload_vimrc
     autocmd!
     autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
   augroup END
+endif
+
+" Conditional include of ~/.vimrc.local
+if filereadable(expand("~/.vimrc.local"))
+  source ~/.vimrc.local
 endif
