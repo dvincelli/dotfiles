@@ -16,19 +16,23 @@ scriptencoding utf-8 " this script is utf-8
 
 set nocompatible     " we don't need vi compatibility, give us all of vim
 
-set laststatus=2 " make the last line where the status is two lines deep so you can see status always
+let mapleader=','
+let g:mapleader = ","
+let g:maplocalleader = ","
+
+set laststatus=2     " always show a status line
 "set cmdheight=2
 
 set lazyredraw		" don't redraw when running macros
 set ttyfast		" fast local tty
 
-set visualbell		" stop the beeping!
+set visualbell		" stop the flashing
 set t_vb=
-set noerrorbells
+set noerrorbells        " stop the beeping
 
 set history=1000	" keep some history
 
-set guioptions=a
+set guioptions=a	" autoselect in VISUAL mode (ie X11 select)
 set clipboard=unnamed,unnamedplus " Uses OS clipboard (shares clipboard accross vim instances)
 
 set backspace=indent,eol,start " backspace over autoident, EOL, and start of insert
@@ -39,7 +43,6 @@ set hlsearch		" highlight search matches
 " <esc> also turns off highlighted matches
 nnoremap <esc> <esc>:nohl<cr>
 set incsearch		" incremental search (jump to partial match)
-
 set smartcase		" if I put case variation in my search, it's cause I care
 set showmatch		" show matching brackets
 
@@ -49,10 +52,6 @@ set sidescrolloff=5	" keep at least this many columns left/right of cursor
 " use rg instead of grep
 set grepprg=rg\ --vimgrep " ripgrep is smarter and faster
 set grepformat^=%f:%l:%c:%m
-
-let mapleader=','
-let g:mapleader = ","
-let g:maplocalleader = ","
 
 " this allows me to define rg as a lowercase command and it won't get
 " expanded mid-word
@@ -70,8 +69,8 @@ set shortmess+=rnixnm	" shorter messages
 
 "set nottybuiltin	" skips internal termcap, uses only system termcap
 
-" mouse support
 set title		" setup my title
+" mouse support
 set mouse=a		" enable mouse in all modes
 set ttymouse=xterm2	" scroll, select
 
@@ -96,8 +95,8 @@ set wildignore+=.git,*.pyc,*.egg,./data/**,./build/**,./dist/**,./*.egg-info/**,
 " do not complete on these
 set suffixes+=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.cmi,.cmo,.swo,.pyc,TAGS
 
-" personal project hierarchy
-set path=~/src/**
+" recursive search for files - :find *.py
+set path+=**
 
 " file explorer preferences
 let g:netrw_list_hide = ".*\.pyc$,^darcs.*,.*patch$,_darcs,*.egg-info,\.svn,\.hg,\.git,\.swp,\.swo,_build"
@@ -128,8 +127,6 @@ function! NetrwSafeDelete()
     endif
 endfunction
 
-
-
 augroup NetrwCustom
     autocmd!
     " Persistent cheat sheet in the statusline (only when inside netrw)
@@ -138,29 +135,18 @@ augroup NetrwCustom
     autocmd FileType netrw nnoremap <buffer> <silent> D :call NetrwSafeDelete()<CR>
 augroup END
 
-
+" enable syntax highliting
 syntax on
 filetype plugin on
 filetype indent on
 
- if has('termguicolors')
-    set termguicolors
-  endif
-" set colorscheme if 256 colors are available
-if (&t_Co >= 256)
-
-  "if exists("syntax_on")
-  "  syntax reset
-  "endif
-  let v:errmsg = ''
-  silent! colorscheme darkblue
-  " If not installed, display warning message
-  if v:errmsg != ''
-    echohl WarningMsg
-    echom "colorscheme not found. Please install the plugin or change the colorscheme."
-    echohl None
-  endif
+" enable true color (24-bit color) in term
+if has('termguicolors')
+  set termguicolors
 endif
+
+" use a nice stock colorscheme, i find this one easy on the eyes
+silent! colorscheme darkblue
 
 " This belongs after the colorscheme is set
 highlight SpecialKey ctermfg=NONE ctermbg=236 guifg=NONE guibg=#21222C
@@ -182,7 +168,7 @@ match RedundantSpaces /\s\+$\| \+\ze\t/
 " show trailing spaces, tabs
 set list
 set listchars=tab:\ \ ,trail:\ ,nbsp:\ 
-"test:	   	 ....    test 1,2,3
+"test:	   	 ....    test 1,2,3  
 
 " Shortcut to rapidly toggle `set list`
 nmap <leader><esc> :set list!<CR>
@@ -195,27 +181,113 @@ nmap <leader>S :grepadd! <cword><cr>:cwindow<cr>
 set re=0
 
 " completion
+" menuone — show the popup menu even with only one match
+" noinsert — don't auto-insert the first match into the buffer
+" noselect — don't auto-highlight the first item (start with nothing selected) ⁠
 set completeopt=menuone,noinsert,noselect
 
 function! SmartTab()
     if pumvisible()
+        let l:ci = complete_info()
+
+        if l:ci.selected >= 0 &&
+                    \ l:ci.items[l:ci.selected].abbr ==# '⇥'
+            return "\<C-y>"
+        endif
+
         return "\<C-n>"
     endif
+
     let col = col('.') - 1
     if !col || getline('.')[col - 1] !~ '\k'
         return "\<Tab>"
     endif
+
+    return "\<C-x>\<C-u>"
+
     " Use omni-completion if the filetype supports it, otherwise keyword completion
     if &omnifunc != ''
         return "\<C-x>\<C-o>"
     else
         return "\<C-n>"
     endif
+
+
+"     " Preserve the original omni-completion function
+"     if &l:omnifunc !=# 'SmartComplete'
+"         let b:smart_omnifunc = &l:omnifunc
+"         setlocal omnifunc=SmartComplete
+"     endif
+"
+    return "\<C-x>\<C-u>"
 endfunction
+
+function! SmartComplete(findstart, base)
+    if a:findstart
+        if exists('b:smart_omnifunc') && !empty(b:smart_omnifunc)
+            return call(b:smart_omnifunc, [1, ''])
+        endif
+
+        let l:start = col('.') - 1
+        while l:start > 0 && getline('.')[l:start - 1] =~# '\k'
+            let l:start -= 1
+        endwhile
+        return l:start
+    endif
+
+    " Get candidates from the original omni-completion source
+    if exists('b:smart_omnifunc') && !empty(b:smart_omnifunc)
+        let l:items = call(b:smart_omnifunc, [0, a:base])
+    else
+        " Otherwise collect keywords from loaded buffers
+        let l:items = []
+        let l:seen = {}
+
+        for l:buf in getbufinfo({'bufloaded': 1})
+            for l:line in getbufline(l:buf.bufnr, 1, '$')
+                let l:pos = 0
+                while 1
+                    let l:word = matchstr(l:line, '\k\+', l:pos)
+                    if empty(l:word)
+                        break
+                    endif
+
+                    if stridx(l:word, a:base) == 0 && !has_key(l:seen, l:word)
+                        let l:seen[l:word] = 1
+                        call add(l:items, l:word)
+                    endif
+
+                    let l:pos = matchend(l:line, '\k\+', l:pos)
+                endwhile
+            endfor
+        endfor
+    endif
+
+    " Add the literal Tab candidate
+    call add(l:items, {
+        \ 'word': a:base . "\t",
+        \ 'abbr': '⇥',
+        \ 'menu': '[literal Tab]'
+        \ })
+
+    return l:items
+endfunction
+
+set completefunc=SmartComplete
+
+function! s:WrapOmni()
+    let l:orig = &l:omnifunc
+    if l:orig !=# ''
+        let b:smart_orig_omni = l:orig
+    endif
+endfunction
+
+autocmd FileType * call s:WrapOmni()   
 
 inoremap <expr> <Tab> SmartTab()
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-inoremap <expr> <cr>    pumvisible() ? "\<C-y>" : "\<cr>"
+inoremap <expr> <CR> pumvisible() ? (complete_info().selected == -1 ? "\<C-n>" : "\<C-y>") : "\<CR>"
+inoremap <expr> <Esc> pumvisible() ? "\<C-e>" : "\<Esc>"
 
 " vim-test
 set timeoutlen=500
@@ -309,7 +381,6 @@ endfunction
 
 " Auto-detect conflict markers and offer the command
 autocmd FileType * if search('^<<<<<<< ', 'nw') | echo 'Conflict detected — :GitConflictDiff' | endif
-
 
 augroup templates
   autocmd!
