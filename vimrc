@@ -270,6 +270,47 @@ endif
 " %L Number of lines in the buffer
 set statusline=%F%m%r%h%w%{GitStatusline()}%=\ [%Y]\ [%{&ff}]\ [%04l,%04v]\ [%p%%]\ [%L]
 
+" Open a 3-way diff for the current file during a conflict
+command! -buffer -nargs=0 GitConflictDiff call s:GitConflictDiff()
+
+function! s:GitConflictDiff()
+  let l:file = expand('%:p')
+  let l:rel  = fnamemodify(l:file, ':.')
+
+  " Check we're actually in a conflict
+  if !filereadable(getcwd() . '/.git/MERGE_HEAD')
+        \ && !isdirectory(getcwd() . '/.git/rebase-merge')
+        \ && !isdirectory(getcwd() . '/.git/rebase-apply')
+    echo 'Not in a merge/rebase conflict'
+    return
+  endif
+
+  " Open ours vs theirs in a vertical diff
+  execute 'diffsplit'
+  let l:theirs = systemlist('git show :3:' . l:rel)
+  if v:shell_error
+    echo 'No "theirs" version for ' . l:rel
+    diffoff!
+    return
+  endif
+  setlocal buftype=nofile bufhidden=wipe noswapfile
+  silent file '[theirs] ' . l:rel
+  %delete
+  call setline(1, l:theirs)
+  diffthis
+  wincmd p
+  diffthis
+
+  " Mappings to pick a side
+  nnoremap <buffer> <leader>o :diffget 2<CR>  " take ours
+  nnoremap <buffer> <leader>t :diffget 3<CR>  " take theirs
+  nnoremap <buffer> <leader>a :diffget 1<CR>  " take base (effectively "theirs minus ours")
+endfunction
+
+" Auto-detect conflict markers and offer the command
+autocmd FileType * if search('^<<<<<<< ', 'nw') | echo 'Conflict detected — :GitConflictDiff' | endif
+
+
 augroup templates
   autocmd!
   autocmd BufRead,BufNewFile *.mtpl,*.mako  setfiletype html
