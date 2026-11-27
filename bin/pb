@@ -1,39 +1,37 @@
-#!/bin/bash
+#!/bin/sh
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  if [[ -t 0 ]]; then
+os=$(uname -s)
+
+# macOS
+if [ "$os" = "Darwin" ]; then
+  if [ -t 0 ]; then
     exec pbpaste
   else
     exec pbcopy
   fi
-elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-  # check for wayland and use wl-clipboard if available
-  if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
-    if command -v wl-copy &>/dev/null && command -v wl-paste &>/dev/null; then
-      if [[ -t 0 ]]; then
-        exec wl-paste
-      else
-        exec wl-copy
-      fi
-      exit 0
+fi
+
+# Wayland (Linux)
+if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
+  if command -v wl-copy >/dev/null 2>&1 && command -v wl-paste >/dev/null 2>&1; then
+    if [ -t 0 ]; then
+      exec wl-paste
     else
-      echo "wl-clipboard is not installed. Please install it to use clipboard operations on Wayland."
-      exit 1
+      exec wl-copy
     fi
   fi
-
-  # fallback to xclip for X11
-  if ! command -v xclip &>/dev/null; then
-    echo "xclip is not installed. Please install it to use clipboard operations on Linux."
-    exit 1
-  fi
-
-  if [[ -t 0 ]]; then
-    exec xclip -selection clipboard -o
-  else
-    exec xclip -selection clipboard
-  fi
-else
-  echo "Your OS is not supported for this clipboard command."
+  echo "wl-clipboard is not installed. Please install it to use clipboard operations on Wayland." >&2
   exit 1
+fi
+
+# X11 / OpenBSD fallback
+if ! command -v xclip >/dev/null 2>&1; then
+  echo "xclip is not installed. Please install it to use clipboard operations on Linux/BSD." >&2
+  exit 1
+fi
+
+if [ -t 0 ]; then
+  exec xclip -selection clipboard -o
+else
+  exec xclip -selection clipboard -i
 fi
